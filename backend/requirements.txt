@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+selenium
+webdriver-manager
+pydantic
+python-dotenv
+openai
+groq
+pytest

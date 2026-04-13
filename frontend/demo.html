@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Automation Agent - Demo UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: white;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body class="p-8">
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-12 text-center">
+            <h1 class="text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+                AI Automation Agent
+            </h1>
+            <p class="text-slate-400">Record browser actions and generate Selenium scripts instantly.</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Control Panel -->
+            <div class="glass p-6 rounded-2xl shadow-xl">
+                <h2 class="text-xl font-semibold mb-4 flex items-center">
+                    <span class="mr-2">🚀</span> Browser Controls
+                </h2>
+                <div class="space-y-4">
+                    <div class="flex space-x-2">
+                        <button onclick="api('/browser/start', 'POST')" class="flex-1 bg-green-600 hover:bg-green-700 p-3 rounded-lg font-medium transition">Start Browser</button>
+                        <button onclick="api('/browser/stop', 'POST')" class="flex-1 bg-red-600 hover:bg-red-700 p-3 rounded-lg font-medium transition">Stop Browser</button>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm text-slate-400">Navigate to URL</label>
+                        <div class="flex space-x-2">
+                            <input id="url" type="text" placeholder="https://google.com" class="flex-1 bg-slate-800 border border-slate-700 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <button onclick="navigate()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition">Go</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Steps Panel -->
+            <div class="glass p-6 rounded-2xl shadow-xl">
+                <h2 class="text-xl font-semibold mb-4 flex items-center">
+                    <span class="mr-2">📝</span> Recorded Steps
+                </h2>
+                <div id="steps-list" class="space-y-2 max-h-48 overflow-y-auto mb-4 text-sm text-slate-300">
+                    <!-- Steps will appear here -->
+                    <p class="text-slate-500 italic">No steps recorded yet...</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="refreshSteps()" class="flex-1 border border-slate-600 hover:bg-slate-800 p-2 rounded-lg transition">Refresh</button>
+                    <button onclick="api('/record/clear', 'POST')" class="flex-1 border border-slate-600 hover:bg-slate-800 p-2 rounded-lg transition text-red-400">Clear</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generation Panel -->
+        <div class="mt-8 glass p-6 rounded-2xl shadow-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold">生成 (Generation)</h2>
+                <div class="flex space-x-2">
+                    <button onclick="generate('python')" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg transition text-sm">Python Script</button>
+                    <button onclick="generate('json')" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg transition text-sm">JSON Steps</button>
+                </div>
+            </div>
+            <pre id="output" class="bg-slate-900 p-4 rounded-lg text-slate-300 text-xs overflow-x-auto h-64 border border-slate-800">Your generated code will appear here...</pre>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = 'http://localhost:8000/api';
+
+        async function api(path, method = 'GET', body = null) {
+            try {
+                const options = { method, headers: { 'Content-Type': 'application/json' } };
+                if (body) options.body = JSON.stringify(body);
+                const res = await fetch(`${BASE_URL}${path}`, options);
+                const data = await res.json();
+                console.log(data);
+                if (path.includes('record')) refreshSteps();
+                return data;
+            } catch (err) {
+                alert('API Error: Is the backend running?');
+            }
+        }
+
+        async function navigate() {
+            const url = document.getElementById('url').value;
+            if (!url) return alert('Enter a URL');
+            await api('/record/navigate', 'POST', { url });
+        }
+
+        async function refreshSteps() {
+            const data = await api('/record/steps');
+            const list = document.getElementById('steps-list');
+            if (!data.steps || data.steps.length === 0) {
+                list.innerHTML = '<p class="text-slate-500 italic">No steps recorded yet...</p>';
+                return;
+            }
+            list.innerHTML = data.steps.map((s, i) => `
+                <div class="bg-slate-800/50 p-2 rounded border border-slate-700 flex justify-between">
+                    <span>${i+1}. <b>${s.action}</b> ${s.value || ''}</span>
+                    <span class="text-slate-500 font-mono text-[10px]">${new Date(s.timestamp * 1000).toLocaleTimeString()}</span>
+                </div>
+            `).join('');
+        }
+
+        async function generate(type) {
+            const data = await api(`/generate/${type}`);
+            const output = document.getElementById('output');
+            output.textContent = data.script || data.json || 'Error generating script';
+        }
+
+        // Auto refresh steps on load
+        setInterval(refreshSteps, 5000);
+    </script>
+</body>
+</html>
