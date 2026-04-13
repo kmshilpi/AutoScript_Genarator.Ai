@@ -22,7 +22,7 @@ export default function Home() {
 
   const [tabs, setTabs] = useState<TabInfo[]>([]);
 
-  const baseUrl = "http://localhost:8000/api";
+  const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
   const apiCall = async (path: string, method: string = "POST", body?: any) => {
     setLoading(true);
@@ -39,7 +39,7 @@ export default function Home() {
       return data;
     } catch (error) {
       console.error("API Call failed:", error);
-      alert("Make sure the backend is running at localhost:8000");
+      alert("Make sure the backend is running at the configured API URL");
     } finally {
       setLoading(false);
     }
@@ -227,7 +227,7 @@ export default function Home() {
             <div className={`w-2 h-2 rounded-full ${status === "Idle" ? "bg-slate-300" : "bg-green-500 animate-pulse"}`}></div>
             Status: <span className={status === "Idle" ? "text-slate-400" : "text-indigo-600"}>{status}</span>
           </div>
-          <div>FastAPI Backend @ Port 8000</div>
+          <div>FastAPI Backend</div>
         </footer>
       </div>
     </main>

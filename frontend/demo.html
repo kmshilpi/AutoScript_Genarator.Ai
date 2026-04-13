@@ -78,7 +78,10 @@
     </div>
 
     <script>
-        const BASE_URL = 'http://localhost:8000/api';
+        // Assuming demo.html is purely static and doesn't run through a bundler, 
+        // we'll point it to the production URL or expect a reverse proxy. 
+        // We use window.location.origin as a safe fallback if served together, or just relative.
+        const BASE_URL = 'https://autoscript-genarator-ai.onrender.com/api';
 
         async function api(path, method = 'GET', body = null) {
             try {
