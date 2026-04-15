@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+import os
 from utils.logger import setup_logger
 
 logger = setup_logger("SeleniumService")
@@ -52,6 +53,11 @@ class SeleniumService:
         chrome_options = Options()
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--disable-gpu")
+        
+        if "RENDER" in os.environ:
+            chrome_options.binary_location = "/opt/render/project/.render/chrome/opt/google/chrome/google-chrome"
         
         try:
             self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
