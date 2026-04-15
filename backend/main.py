@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import browser, record, generate
+from routes import browser, record, generate, run_test
 from dotenv import load_dotenv
 import os
 
@@ -22,6 +22,7 @@ app.add_middleware(
 app.include_router(browser.router, prefix="/api/browser", tags=["browser"])
 app.include_router(record.router, prefix="/api/record", tags=["record"])
 app.include_router(generate.router, prefix="/api/generate", tags=["generate"])
+app.include_router(run_test.router, prefix="/api/run-test", tags=["run_test"])
 
 # Direct access as requested
 app.include_router(record.router, tags=["record"])

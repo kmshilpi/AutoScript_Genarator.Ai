@@ -89,10 +89,10 @@ class AIService:
             1. Add a '*** Variables ***' section:
                - Extract all locators into variables.
                - Extract navigation URLs into variables (e.g., ${{BASE_URL}}, ${{LOGIN_URL}}).
-               - LOCATOR PRIORITY:
-                 1. id -> #id
-                 2. name -> [name='value']
-                 3. data-testid -> [data-testid='value']
+               - LOCATOR PRIORITY (Use exact css prefix syntax):
+                 1. id -> css=#id
+                 2. name -> css=[name='value']
+                 3. data-testid -> css=[data-testid='value']
                  4. xpath (last resort)
                - VARIABLE NAMING:
                  - input/textarea -> *_FIELD
@@ -109,7 +109,8 @@ class AIService:
                - First 'Wait Until Element Is Visible' (with retry).
                - Then perform the action (with retry).
             5. For Navigation:
-               - Use 'Go To' with the corresponding URL variable and retry logic.
+               - If it is the VERY FIRST action, use 'Open Browser    ${{URL_VAR}}    chrome' followed by 'Maximize Browser Window'.
+               - Otherwise, use 'Go To' with the corresponding URL variable and retry logic.
             6. AVOID DUPLICATES: If the same locator is used multiple times, reuse the variable.
             
             DROPDOWN HANDLING (CRITICAL):
@@ -202,7 +203,11 @@ class AIService:
             var_value = locator_to_var.get(value, value)
             
             if action == "navigate":
-                test_steps.append(f"    {retry_prefix}Go To    {var_value}")
+                if len(test_steps) == 0:
+                    test_steps.append(f"    Open Browser    {var_value}    chrome")
+                    test_steps.append(f"    Maximize Browser Window")
+                else:
+                    test_steps.append(f"    {retry_prefix}Go To    {var_value}")
             elif action == "click":
                 test_steps.append(f"    {retry_prefix}Wait Until Element Is Visible    {var_selector}    2s")
                 test_steps.append(f"    {retry_prefix}Click Element    {var_selector}")
@@ -294,11 +299,14 @@ class AIService:
           - Any position/index-based option selection
         
         - For Robot Framework:
-            - Add a '*** Variables ***' section for all locators AND URLs.
-            - LOCATOR PRIORITY:
-              1. id -> #id
-              2. name -> [name='value']
-              3. data-testid -> [data-testid='value']
+            - The script MUST start with a valid `*** Settings ***` section containing `Library    SeleniumLibrary`.
+            - Ensure a valid `*** Test Cases ***` block is present.
+            - Provide a `*** Variables ***` section for all locators AND URLs.
+            - For the VERY FIRST navigation step in the test case, use `Open Browser    ${{URL_VAR}}    chrome` followed by `Maximize Browser Window`. NEVER start with just `Go To`.
+            - LOCATOR PRIORITY (Use exact css prefix syntax):
+              1. id -> css=#id
+              2. name -> css=[name='value']
+              3. data-testid -> css=[data-testid='value']
               4. xpath (last resort)
             - VARIABLE NAMING:
               - input/textarea -> *_FIELD
@@ -308,7 +316,7 @@ class AIService:
               - option -> *_OPTION
               - generic -> *_ELEMENT
               - Use element id, placeholder, or innerText for the name part.
-            - Add retry logic: 'Wait Until Keyword Succeeds 15x 2s' for every step including Go To.
+            - Add retry logic: 'Wait Until Keyword Succeeds    15x    2s' for every step including Go To (Make sure you use exactly 4 spaces to separate arguments, NOT a single space!).
             - Every action (Click, Input, etc.) MUST Wait Until Element Is Visible (with retry) BEFORE interaction.
             - Avoid duplicate variables. If a locator or URL is used multiple times, reuse the variable.
         - If no steps are provided, indicate that no actions were recorded.

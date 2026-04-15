@@ -221,11 +221,35 @@ class SeleniumService:
                 return parts.length ? "/" + parts.join("/") : null;
             }
 
+            function getUniqueTextXPath(el) {
+                const text = (el.innerText || "").trim().split('\\n')[0]; // only first line of text
+                if (!text || text.length > 50) return null;
+                // Escape single quotes for XPath
+                const safeText = text.replace(/'/g, "''");
+                
+                // Instead of strict equality, use contains text for buttons
+                const tag = el.tagName.toLowerCase();
+                return `xpath=//${tag}[contains(normalize-space(text()), '${safeText}')]`;
+            }
+
             function getBestSelector(el) {
-                if (el.id) return "#" + el.id;
+                // Avoid dynamically generated numerical IDs like mat-input-15
+                if (el.id && !el.id.match(/-\d+$/) && !el.id.match(/^mat-[a-z]+-\d+/)) return "#" + el.id;
                 if (el.name) return "[name='" + el.name + "']";
                 if (el.getAttribute("data-testid")) return "[data-testid='" + el.getAttribute("data-testid") + "']";
-                return getXPath(el);
+                if (el.getAttribute("data-cy")) return "[data-cy='" + el.getAttribute("data-cy") + "']";
+                if (el.getAttribute("aria-label")) return `[aria-label='${el.getAttribute("aria-label")}']`;
+                if (el.placeholder) return `[placeholder='${el.placeholder}']`;
+                
+                if (el.tagName === 'BUTTON' || el.tagName === 'A' || el.role === 'button') {
+                    const textXPath = getUniqueTextXPath(el);
+                    if (textXPath) return textXPath;
+                }
+                
+                if (el.tagName === 'IMG' && el.alt) return `xpath=//img[@alt='${el.alt}']`;
+                
+                const path = getXPath(el);
+                return path ? "xpath=" + path : null;
             }
 
             function recordAction(action, el, value = "") {

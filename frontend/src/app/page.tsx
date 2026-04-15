@@ -22,7 +22,12 @@ export default function Home() {
 
   const [tabs, setTabs] = useState<TabInfo[]>([]);
 
-  const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/api`;
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [executionLogs, setExecutionLogs] = useState<{stdout: string, stderr: string} | null>(null);
+  const [runStatus, setRunStatus] = useState<"pass" | "fail" | "none">("none");
+  const [isLogsOpen, setIsLogsOpen] = useState(false);
+
+  const baseUrl = `${process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://autoscript-genarator-ai.onrender.com" : "http://localhost:8000")}/api`;
 
   const apiCall = async (path: string, method: string = "POST", body?: any) => {
     setLoading(true);
@@ -97,6 +102,26 @@ export default function Home() {
     }
   };
 
+  const runTestCase = async () => {
+    if (!robotScript) return;
+    setIsExecuting(true);
+    setStatus("Running Test...");
+    setIsLogsOpen(true);
+    setExecutionLogs(null);
+    setRunStatus("none");
+
+    const res = await apiCall("/run-test", "POST", { script: robotScript });
+    if (res?.status) {
+      setExecutionLogs({ stdout: res.stdout || "", stderr: res.stderr || "" });
+      setRunStatus(res.status === "success" ? "pass" : "fail");
+      setStatus(`Test Execution ${res.status === "success" ? "Passed" : "Failed"}`);
+    } else {
+      setStatus("Execution Error");
+      setRunStatus("fail");
+    }
+    setIsExecuting(false);
+  };
+
   return (
     <main className="min-h-screen bg-slate-50 px-6 md:px-8 py-6 md:py-12 font-sans text-slate-900 relative">
       {/* Loading Overlay */}
@@ -136,6 +161,13 @@ export default function Home() {
               className="bg-emerald-600 hover:bg-emerald-700 hover:scale-105 hover:shadow-lg text-white px-8 py-3 rounded-lg font-bold transition-all shadow-sm disabled:opacity-50"
             >
               Generate Test Case
+            </button>
+            <button
+              onClick={runTestCase}
+              disabled={loading || isExecuting || !robotScript}
+              className="bg-slate-700 hover:bg-slate-800 hover:scale-105 hover:shadow-lg text-white px-8 py-3 rounded-lg font-bold transition-all shadow-sm disabled:opacity-50 flex items-center gap-2"
+            >
+              {isExecuting ? "Running Test..." : "▶ Run Test Case"}
             </button>
           </div>
         </header>
@@ -208,11 +240,14 @@ export default function Home() {
                 </button>
               )}
             </div>
-              <div className="bg-white border-2 border-slate-200 rounded-2xl overflow-hidden shadow-sm h-[75vh] flex flex-col relative">
+              <div className="bg-white border-2 border-slate-200 rounded-2xl overflow-hidden shadow-sm h-[75vh] flex flex-col relative focus-within:ring-2 focus-within:ring-blue-500 transition-all">
               {robotScript ? (
-                <pre className="p-8 overflow-auto text-[15px] leading-loose font-mono text-blue-900 bg-blue-50/20 flex-1 whitespace-pre-wrap">
-                  <code>{robotScript}</code>
-                </pre>
+                <textarea
+                  value={robotScript}
+                  onChange={(e) => setRobotScript(e.target.value)}
+                  spellCheck={false}
+                  className="p-8 overflow-auto text-[15px] leading-loose font-mono text-blue-900 bg-blue-50/20 flex-1 resize-none outline-none w-full"
+                />
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center text-slate-400 italic bg-slate-50">
                   <p>Robot script will appear here</p>
@@ -221,6 +256,40 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* Execution Logs Section */}
+        {executionLogs && (
+          <div className="bg-slate-900 rounded-2xl overflow-hidden shadow-xl border border-slate-700 mt-8 transition-all">
+            <button 
+              onClick={() => setIsLogsOpen(!isLogsOpen)}
+              className="w-full flex justify-between items-center bg-slate-800 p-4 hover:bg-slate-700 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-white font-bold tracking-wider">Execution Logs</span>
+                {runStatus === "pass" && <span className="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest border border-emerald-500/30">Passed</span>}
+                {runStatus === "fail" && <span className="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest border border-red-500/30">Failed</span>}
+              </div>
+              <span className="text-slate-400 font-mono">{isLogsOpen ? "▲" : "▼"}</span>
+            </button>
+            
+            {isLogsOpen && (
+              <div className="p-6 bg-slate-900 border-t border-slate-800">
+                <div className="font-mono text-sm leading-loose">
+                  {executionLogs.stdout && (
+                    <div className="text-slate-300 whitespace-pre-wrap mb-4">
+                      {executionLogs.stdout}
+                    </div>
+                  )}
+                  {executionLogs.stderr && (
+                    <div className="text-red-400 whitespace-pre-wrap">
+                      {executionLogs.stderr}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <footer className="pt-6 border-t border-slate-200 flex justify-between items-center text-slate-400 text-xs font-bold uppercase tracking-widest">
           <div className="flex items-center gap-2">
