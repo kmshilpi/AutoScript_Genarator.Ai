@@ -6,7 +6,7 @@ set -o errexit
 PROJECT_ROOT=$(pwd)
 STORAGE_DIR=/opt/render/project/.render
 
-if [[ ! -d $STORAGE_DIR/chrome ]]; then
+if [[ ! -f $STORAGE_DIR/chrome/chromedriver ]]; then
   echo "...Downloading Chrome"
   rm -rf $STORAGE_DIR/chrome
   mkdir -p $STORAGE_DIR/chrome
@@ -24,7 +24,7 @@ if [[ ! -d $STORAGE_DIR/chrome ]]; then
   rm -rf chromedriver-linux64 chromedriver.zip
   echo "...Downloaded Chrome and ChromeDriver"
 else
-  echo "...Using Chrome from cache"
+  echo "...Using Chrome and ChromeDriver from cache"
 fi
 
 # Return to project root before installing requirements
