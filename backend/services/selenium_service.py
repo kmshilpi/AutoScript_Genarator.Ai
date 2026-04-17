@@ -54,11 +54,17 @@ class SeleniumService:
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--disable-gpu")
         
+        service = None
         if "RENDER" in os.environ:
             chrome_options.binary_location = "/opt/render/project/.render/chrome/opt/google/chrome/google-chrome"
+            from selenium.webdriver.chrome.service import Service
+            service = Service("/opt/render/project/.render/chrome/chromedriver")
         
         try:
-            self.driver = webdriver.Chrome(options=chrome_options)
+            if service:
+                self.driver = webdriver.Chrome(service=service, options=chrome_options)
+            else:
+                self.driver = webdriver.Chrome(options=chrome_options)
             logger.info("Browser started successfully")
             return {"status": "success", "message": "Browser started"}
         except Exception as e:
