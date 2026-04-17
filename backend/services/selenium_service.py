@@ -1,7 +1,5 @@
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -60,7 +58,7 @@ class SeleniumService:
             chrome_options.binary_location = "/opt/render/project/.render/chrome/opt/google/chrome/google-chrome"
         
         try:
-            self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+            self.driver = webdriver.Chrome(options=chrome_options)
             logger.info("Browser started successfully")
             return {"status": "success", "message": "Browser started"}
         except Exception as e:
