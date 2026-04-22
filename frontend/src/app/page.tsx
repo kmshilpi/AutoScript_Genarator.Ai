@@ -94,11 +94,14 @@ export default function Home() {
   };
 
   const generateAll = async () => {
+    setStatus("Generating Test Cases...");
     const res = await apiCall("/generate/generate-all", "GET");
     if (res?.bdd) {
       setBddScenario(res.bdd);
       setRobotScript(res.robot);
       setStatus("Test Cases Generated");
+    } else {
+      setStatus("Generation Failed");
     }
   };
 
@@ -129,7 +132,9 @@ export default function Home() {
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center transition-opacity">
           <div className="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center gap-4">
             <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-            <p className="font-bold text-slate-700">Connecting to Agent...</p>
+            <p className="font-bold text-slate-700">
+              {status === "Idle" ? "Connecting to Agent..." : status}
+            </p>
           </div>
         </div>
       )}

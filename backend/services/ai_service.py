@@ -1,6 +1,8 @@
+# AI Service for Browser Automation
 import time
 import json
 import os
+import re
 from openai import OpenAI
 from groq import Groq
 from typing import List
@@ -21,6 +23,8 @@ class AIService:
         """
         Converts recorded steps into business-readable Gherkin BDD format.
         """
+        steps = AIService._filter_redundant_steps(steps)
+        steps = AIService._collapse_input_steps(steps)
         if not steps:
             return "Feature: Empty Test\n  Scenario: No steps recorded"
 
@@ -46,6 +50,8 @@ class AIService:
         """
         Converts recorded steps into a production-ready Selenium Python script.
         """
+        steps = AIService._filter_redundant_steps(steps)
+        steps = AIService._collapse_input_steps(steps)
         if use_ai and (os.getenv("OPENAI_API_KEY") or os.getenv("GROQ_API_KEY")):
             prompt = f"Convert these REAL browser automation steps into a professional, production-ready Selenium Python script. \n- DO NOT use any dummy data or examples. \n- ONLY use the steps provided. \n- Use meaningful variable names for element finders. \n- Use WebDriverWait and avoid fixed time.sleep(). \n- Use try/except for robustness. \nSteps: {json.dumps(steps)}"
             return AIService.generate_ai_output(prompt)
@@ -78,6 +84,7 @@ class AIService:
         Converts recorded steps into a professional Robot Framework script.
         Optionally uses AI for meaningful variable names and flow detection.
         """
+        steps = AIService._filter_redundant_steps(steps)
         if not steps:
             return "*** Settings ***\nLibrary    SeleniumLibrary\n\n*** Test Cases ***\nEmpty Test\n    Log    No steps recorded"
 
@@ -86,52 +93,30 @@ class AIService:
             Convert these REAL browser automation steps into a professional Robot Framework script using SeleniumLibrary. 
             
             STRICT REQUIREMENTS:
-            1. Add a '*** Variables ***' section:
-               - Extract all locators into variables.
-               - Extract navigation URLs into variables (e.g., ${{BASE_URL}}, ${{LOGIN_URL}}).
-               - LOCATOR PRIORITY (Use exact css prefix syntax):
-                 1. id -> css=#id
-                 2. name -> css=[name='value']
-                 3. data-testid -> css=[data-testid='value']
-                 4. xpath (last resort)
-               - VARIABLE NAMING:
-                 - input/textarea -> *_FIELD
-                 - button -> *_BUTTON
-                 - link (a) -> *_LINK
-                 - select/dropdown -> *_DROPDOWN
-                 - option -> *_OPTION
-                 - generic -> *_ELEMENT
-                 - Use element id, placeholder, or innerText for the name part.
-            2. Replace raw locators and URLs in steps with these variables.
-            3. Add retry logic to EVERY action step:
-               - Use: Wait Until Keyword Succeeds    15x    2s
-            4. For each interaction (Click, Input, etc.):
-               - First 'Wait Until Element Is Visible' (with retry).
-               - Then perform the action (with retry).
-            5. For Navigation:
-               - If it is the VERY FIRST action, use 'Open Browser    ${{URL_VAR}}    chrome' followed by 'Maximize Browser Window'.
-               - Otherwise, use 'Go To' with the corresponding URL variable and retry logic.
-            6. AVOID DUPLICATES: If the same locator is used multiple times, reuse the variable.
-            
-            DROPDOWN HANDLING (CRITICAL):
-            - NEVER use index-based XPaths for dropdown options like (//mat-option)[2] or (//option)[3].
-            - ALWAYS select dropdown options using VISIBLE TEXT from the step data.
-            - Steps with action "select" contain an "option_text" or "value" field with the visible text.
-            - For NATIVE <select> dropdowns:
-              - Use: Select From List By Label    ${{DROPDOWN_VAR}}    VisibleText
-            - For Angular Material (mat-select / mat-option) dropdowns:
-              1. Click the dropdown trigger to open it (with retry + wait visible).
-              2. Wait Until Element Is Visible for the option panel.
-              3. Click the option using text-based XPath:
-                 Click Element    xpath=//mat-option//span[normalize-space(text())="OptionText"]
-            - For custom dropdowns ([role="listbox"], [role="combobox"]):
-              1. Click the trigger to open options.
-              2. Wait Until Element Is Visible for options container.
-              3. Click option using text: xpath=//*[@role="option"][normalize-space(text())="OptionText"]
-            - FORBIDDEN patterns:
-              - (//mat-option)[1], (//mat-option)[2] etc.
-              - Select From List By Index
-              - Any position/index-based option selection
+            1. **Variables Section**:
+               - Extract ALL locators and URLs into variables.
+               - LOCATOR PRIORITY (HIGHEST PRIORITY):
+                 - visible text -> xpath=//tag[normalize-space()='Text'] (USE THIS FIRST)
+                 - id -> id=value (STRICT: Reject dynamic IDs like mat-input-*)
+                 - name -> name=value
+                 - data-testid -> css=[data-testid='value']
+                 - aria-label / placeholder -> css=[aria-label='value'] or //*[@placeholder='value']
+                 - relative xpath (STRICT: NEVER use absolute /html/body/...)
+               - VARIABLE NAMING: Pattern: ${{TYPE_LABEL_SUFFIX}} (e.g., ${{LOGIN_BUTTON}})
+               - CRITICAL: Variable names MUST NOT start with a number. Use ${{VAR_1_ELEMENT}} instead of ${{1_ELEMENT}}.
+               - FORMATTING: Ensure exactly 4 spaces between the variable name and its value.
+
+            2. **Test Cases Section**:
+               - **BROWSER**: ALWAYS use 'Open Browser    ${{URL}}    chrome'. NEVER use Firefox.
+               - Use reusable keywords for all interactions (Wait And Click, Wait And Input).
+               - REMOVE REDUNDANT STEPS: 
+                 - Do NOT click an element immediately before inputting text into it.
+                 - Do NOT click wrapper divs or containers if the target element is reachable.
+               - CLEANUP: Remove consecutive duplicate actions.
+
+            3. **Keywords Section**:
+               - Define 'Wait And Click' and 'Wait And Input'.
+               - Use 'Wait Until Keyword Succeeds    10x    2s' inside these keywords for robustness.
             
             Steps: {json.dumps(steps)}
             """
@@ -141,93 +126,99 @@ class AIService:
         variables = []
         locator_to_var = {}
         test_steps = []
-        retry_prefix = "Wait Until Keyword Succeeds    15x    2s    "
         
         # Priority logic for variables
         for i, step in enumerate(steps):
             action = step.get("action", "").lower()
             if action == "navigate":
                 url = step.get("value", "")
-                var_name = f"${{URL_{i}}}" if i > 0 else "${URL}"
-                variables.append(f"{var_name.ljust(30)} {url}")
-                locator_to_var[url] = var_name
+                var_name = "${URL}"
+                if i == 0 or "${URL}" not in locator_to_var.values():
+                    variables.append("${: <30}    chrome".format("${BROWSER}"))
+                    variables.append(f"{var_name.ljust(30)}    {url}")
+                    locator_to_var[url] = var_name
+                else:
+                    var_name = f"${{URL_{i}}}"
+                    variables.append(f"{var_name.ljust(30)}    {url}")
+                    locator_to_var[url] = var_name
                 continue
                 
-            # Determine best locator based on priority
-            best_locator = step.get("selector")
-            if step.get("element_id"):
-                best_locator = f"id={step['element_id']}"
-            elif step.get("element_name"):
-                best_locator = f"name={step['element_name']}"
-            elif step.get("data_testid"):
-                best_locator = f"css=[data-testid='{step['data_testid']}']"
-            
+            # Priority logic for variables
+            # Reject absolute XPath
+            best_locator = step.get("selector", "")
+            if best_locator.startswith("/html/body") or not best_locator:
+                if step.get("inner_text") and len(step["inner_text"]) < 50:
+                    tag = step.get("tag_name", "*")
+                    best_locator = f"xpath=//{tag}[normalize-space()='{step['inner_text']}']"
+                elif step.get("element_id") and "mat-input" not in step["element_id"]:
+                    best_locator = f"id={step['element_id']}"
+                elif step.get("element_name"):
+                    best_locator = f"name={step['element_name']}"
+                else:
+                    best_locator = step.get("selector", "")
+
+            # Double check: if inner_text exists, prefer it
+            if step.get("inner_text") and len(step["inner_text"]) < 50:
+                tag = step.get("tag_name", "*")
+                best_locator = f"xpath=//{tag}[normalize-space()='{step['inner_text']}']"
+
             if best_locator not in locator_to_var:
-                # Generate name
                 tag = step.get("tag_name", "").lower()
                 suffix = "ELEMENT"
                 if tag == "input" or tag == "textarea": suffix = "FIELD"
-                elif tag == "button" or (tag == "input" and step.get("value") in ["submit", "button"]): suffix = "BUTTON"
-                elif tag == "a": suffix = "LINK"
+                elif tag in ["button", "a", "span", "label"] or (tag == "input" and step.get("type") in ["submit", "button"]): suffix = "BUTTON"
                 elif tag == "select" or tag == "mat-select": suffix = "DROPDOWN"
-                elif tag == "mat-option" or tag == "option": suffix = "OPTION"
                 
-                # Base name from id, name, placeholder or text
-                base = step.get("element_id") or step.get("element_name") or step.get("placeholder") or step.get("inner_text") or f"ELEM_{i}"
-                import re
+                base = step.get("inner_text") or step.get("element_id") or step.get("element_name") or step.get("placeholder") or f"ELEM_{i}"
                 base = re.sub(r'[^a-zA-Z0-9]', '_', str(base)).upper()[:20]
                 
+                # STABILITY FIX: Ensure variable name doesn't start with a number
+                if base and base[0].isdigit():
+                    base = f"VAR_{base}"
+                elif not base:
+                    base = f"VAR_{i}"
+                
                 var_name = f"${{{base}_{suffix}}}"
-                # Handle potential duplicate names for different locators
-                if any(v.startswith(var_name[:-1]) for v in locator_to_var.values()):
-                    var_name = f"${{{base}_{i}_{suffix}}}"
-                    
+                
                 locator_to_var[best_locator] = var_name
-                variables.append(f"{var_name.ljust(30)} {best_locator}")
+                variables.append(f"{var_name.ljust(30)}    {best_locator}")
 
         # Generate Test Steps
-        for step in steps:
+        for i, step in enumerate(steps):
             action = step.get("action", "").lower()
             value = step.get("value", "")
-            
-            # Determine best locator again for the step
-            best_locator = step.get("selector")
-            if step.get("element_id"):
+            best_locator = step.get("selector", "")
+            # Re-apply logic to match var
+            if step.get("element_id") and "mat-input" not in step["element_id"]:
                 best_locator = f"id={step['element_id']}"
             elif step.get("element_name"):
                 best_locator = f"name={step['element_name']}"
-            elif step.get("data_testid"):
-                best_locator = f"css=[data-testid='{step['data_testid']}']"
             
             var_selector = locator_to_var.get(best_locator, best_locator)
-            var_value = locator_to_var.get(value, value)
             
+            # EMERGENCY FIX: Ensure var_selector is never empty for Go To
+            if action == "navigate" and not var_selector:
+                var_selector = "${URL}"
+
             if action == "navigate":
-                if len(test_steps) == 0:
-                    test_steps.append(f"    Open Browser    {var_value}    chrome")
+                if i == 0:
+                    test_steps.append(f"    ${{options}}=    Evaluate    sys.modules['selenium.webdriver'].ChromeOptions()    sys, selenium.webdriver")
+                    test_steps.append(f"    Call Method    ${{options}}    add_argument    --disable-notifications")
+                    test_steps.append(f"    Call Method    ${{options}}    add_argument    --disable-infobars")
+                    test_steps.append(f"    ${{prefs}}=    Create Dictionary    profile.default_content_setting_values.notifications=2    credentials_enable_service=${{False}}    profile.password_manager_enabled=${{False}}")
+                    test_steps.append(f"    Call Method    ${{options}}    add_experimental_option    prefs    ${{prefs}}")
+                    test_steps.append(f"    Create Webdriver    Chrome    options=${{options}}")
+                    test_steps.append(f"    Go To    {var_selector}")
                     test_steps.append(f"    Maximize Browser Window")
                 else:
-                    test_steps.append(f"    {retry_prefix}Go To    {var_value}")
+                    test_steps.append(f"    Go To    {var_selector}")
             elif action == "click":
-                test_steps.append(f"    {retry_prefix}Wait Until Element Is Visible    {var_selector}    2s")
-                test_steps.append(f"    {retry_prefix}Click Element    {var_selector}")
+                # Check if next step is input for same element, if so skip click
+                if i + 1 < len(steps) and steps[i+1].get("action") == "input" and steps[i+1].get("selector") == step.get("selector"):
+                    continue
+                test_steps.append(f"    Wait And Click    {var_selector}")
             elif action == "input":
-                test_steps.append(f"    {retry_prefix}Wait Until Element Is Visible    {var_selector}    2s")
-                test_steps.append(f"    {retry_prefix}Input Text    {var_selector}    {value}")
-            elif action == "select":
-                option_text = step.get("option_text") or step.get("value", "")
-                dropdown_type = step.get("dropdown_type", "")
-                if dropdown_type == "native-select":
-                    # Native select — use Select From List By Label
-                    test_steps.append(f"    {retry_prefix}Wait Until Element Is Visible    {var_selector}    2s")
-                    test_steps.append(f"    {retry_prefix}Select From List By Label    {var_selector}    {option_text}")
-                else:
-                    # Angular Material / custom — use text-based xpath click
-                    test_steps.append(f"    {retry_prefix}Wait Until Element Is Visible    {var_selector}    2s")
-                    test_steps.append(f"    {retry_prefix}Click Element    {var_selector}")
-                    option_xpath = f"xpath=//mat-option//span[normalize-space(text())=\\\"{option_text}\\\"]"
-                    test_steps.append(f"    {retry_prefix}Wait Until Element Is Visible    {option_xpath}    5s")
-                    test_steps.append(f"    {retry_prefix}Click Element    {option_xpath}")
+                test_steps.append(f"    Wait And Input    {var_selector}    {value}")
 
         return "\n".join([
             "*** Settings ***",
@@ -236,16 +227,240 @@ class AIService:
             *variables,
             "\n*** Test Cases ***",
             "End To End Flow",
-            *test_steps
+            *test_steps,
+            "\n*** Keywords ***",
+            "Wait And Click",
+            "    [Arguments]    ${locator}",
+            "    Wait Until Keyword Succeeds    10x    2s    Wait Until Element Is Visible    ${locator}    15s",
+            "    Wait Until Keyword Succeeds    10x    2s    Click Element    ${locator}",
+            "\nWait And Input",
+            "    [Arguments]    ${locator}    ${text}",
+            "    Wait Until Keyword Succeeds    10x    2s    Wait Until Element Is Visible    ${locator}    15s",
+            "    Wait Until Keyword Succeeds    10x    2s    Input Text    ${locator}    ${text}"
         ])
 
     @staticmethod
     def improve_locator(html_snippet: str, failed_locator: str) -> str:
         """
         Uses AI to propose a better XPath given a failing one and the surrounding HTML.
+        Follows expert rules for stable, robust, and unique locators.
         """
-        prompt = f"The XPath '{failed_locator}' failed to find an element in this HTML snippet: \n{html_snippet}\n\nPlease provide a more robust and unique XPath for the intended element. Return only the XPath string."
-        return AIService.generate_ai_output(prompt)
+        prompt = f"""
+        You are an expert in Selenium, XPath, and Robot Framework automation.
+        Your task is to analyze the given HTML snippet and generate a UNIQUE, STABLE, and ROBUST XPath.
+        
+        The XPath '{failed_locator}' failed to find the element in this HTML:
+        {html_snippet}
+
+        STRICT LOCATOR GENERATION RULES:
+        1. First priority: ID (only if stable and unique)
+        2. Second: Visible text (exact or contains)
+        3. Third: Stable attributes (name, placeholder, type, aria-*, data-* attributes)
+        4. Fourth: Parent → Child relationship
+        5. Avoid class unless it is clearly unique and stable
+        6. Detect dynamic attributes (random IDs, dynamic classes) and AVOID them
+        7. Use index ONLY as last fallback
+        8. Avoid absolute XPath (NEVER use /html/body)
+        9. ALWAYS use relative XPath starting with //
+        
+        SMART DETECTION:
+        - Identify dynamic values (e.g., id="a123x9", class="ng-xyz-123")
+        - Prefer contains() for partially dynamic attributes
+        - Combine multiple attributes if needed to ensure uniqueness
+        - Ensure locator matches ONLY ONE element
+
+        Return ONLY the raw XPath string (no labels, no quotes, no markdown backticks).
+        """
+        result = AIService.generate_ai_output(prompt)
+        # Cleanup: sometimes AI adds quotes or backticks despite instructions
+        return result.strip().replace('"', '').replace("'", "").replace("`", "")
+
+    @staticmethod
+    def refactor_robot_script(script: str) -> dict:
+        """
+        Refactors a Robot Framework script following expert rules:
+        - Stable unique locators (ID → text → stable attrs)
+        - Reusable keywords (Wait And Click, Wait And Input With Validation)
+        - Proper input handling (clear-before-type, full value at once, verify after)
+        - Angular/Material UI detection
+        Returns a structured dict with best_locator, alt_locator, reason, keywords, refactored_script.
+        """
+        prompt = f"""
+        You are a strict Robot Framework automation optimizer and expert in Selenium and XPath.
+        Rewrite the given script with all rules below — produce a CLEAN, FAST, PRODUCTION-READY script.
+
+        INPUT SCRIPT:
+        {script}
+
+        ==========================================
+        🚨 CRITICAL FIX 1 — REMOVE CHAR-BY-CHAR TYPING:
+        ==========================================
+        - SCAN for character-by-character Input Text steps, e.g.:
+            Input Text    <locator>    S
+            Input Text    <locator>    Sh
+            Input Text    <locator>    Shi
+        - DELETE the entire group completely
+        - Replace with ONE block per field:
+            Wait Until Element Is Visible    <locator>    10s
+            Clear Element Text    <locator>
+            Input Text    <locator>    <FULL_VALUE>
+            Element Attribute Value Should Be    <locator>    value    <FULL_VALUE>
+
+        ❗ If output still contains: Input Text    S / Input Text    Sh → INVALID
+
+        ==========================================
+        ⌨️ INPUT RULE:
+        ==========================================
+        - EVERY input field uses this exact pattern:
+            Wait Until Element Is Visible    <locator>    10s
+            Clear Element Text    <locator>
+            Input Text    <locator>    <FULL_VALUE>
+            Element Attribute Value Should Be    <locator>    value    <FULL_VALUE>
+        - ONE block per field, DO NOT repeat Input Text for the same locator
+
+        ==========================================
+        🖱️ CLICK RULE:
+        ==========================================
+        - For click actions, use Wait Until Keyword Succeeds only if needed:
+            Wait Until Element Is Visible    <locator>    10s
+            Click Element    <locator>
+        - Or with retry:
+            Wait Until Keyword Succeeds    3x    2s    Click Element    <locator>
+
+        ==========================================
+        🚫 LOCATOR RULES (VERY STRICT):
+        ==========================================
+        - REMOVE all absolute XPath starting with /html/body — REJECT and REWRITE
+        - NEVER use index-based locators like div[2], div[4], span[3]
+        - LOCATOR PRIORITY:
+            1. id   → css=#id or //tag[@id='value']
+            2. name → //tag[@name='value']
+            3. Visible text → //tag[normalize-space()='Text'] or //tag[text()='Text']
+            4. Stable attribute → name, placeholder, type, aria-*, data-*
+            5. Parent → Child relative XPath (NEVER absolute)
+        - For Angular Material elements:
+            ✔ mat-select  → //mat-select
+            ✔ mat-option  → //mat-option//span[text()='VALUE']
+            ✔ mat-dialog  → //mat-dialog-container
+            ✔ Text button → //button[normalize-space()='Submit']
+
+        ==========================================
+        ⚡ PERFORMANCE RULES:
+        ==========================================
+        - Max retry = 3x (only for clicks if needed)
+        - NEVER use Wait Until Keyword Succeeds for Input Text
+        - Use Wait Until Element Is Visible (10s timeout) instead
+        - Remove all unnecessary duplicate waits
+
+        ==========================================
+        🧹 REFACTORING:
+        ==========================================
+        - Create reusable keywords:
+            Wait And Click    → visible check + click
+            Wait And Input    → visible + clear + input + verify
+        - Remove redundant steps
+        - Keep script fast, clean, production-ready
+
+        ==========================================
+        📤 RETURN FORMAT:
+        ==========================================
+        Return a JSON object with EXACTLY this structure:
+        {{
+          "best_locator": "//... (example from first interactive element in script)",
+          "alt_locator": "//... (alternative for same element)",
+          "reason": "Why these locators are stable and unique",
+          "keywords": "*** Keywords ***\\nWait And Click\\n    [Arguments]    ${{locator}}\\n    Wait Until Element Is Visible    ${{locator}}    10s\\n    Click Element    ${{locator}}\\n\\nWait And Input\\n    [Arguments]    ${{locator}}\\n    ${{value}}\\n    Wait Until Element Is Visible    ${{locator}}    10s\\n    Clear Element Text    ${{locator}}\\n    Input Text    ${{locator}}    ${{value}}\\n    Element Attribute Value Should Be    ${{locator}}    value    ${{value}}",
+          "refactored_script": "*** Settings ***\\n...full refactored robot script..."
+        }}
+        Return ONLY the JSON. No markdown. No backticks. No extra text.
+        """
+        response_text = AIService.generate_ai_output(prompt)
+        try:
+            import re
+            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+            if json_match:
+                return json.loads(json_match.group(0))
+            return json.loads(response_text)
+        except Exception as e:
+            print(f"[AI] Failed to parse refactor_robot_script response: {e}")
+            return {
+                "best_locator": "",
+                "alt_locator": "",
+                "reason": "AI failed to parse the script.",
+                "keywords": "",
+                "refactored_script": "",
+                "raw": response_text
+            }
+
+    @staticmethod
+    def generate_locator(html: str) -> dict:
+        """
+        Analyzes an HTML element and generates a UNIQUE, STABLE, and ROBUST locator.
+        Follows expert XPath generation rules.
+        Returns a structured dict with best_xpath, alt_xpath, reason, selenium_code, robot_code.
+        """
+        prompt = f"""
+        You are an expert in Selenium, XPath, and Robot Framework automation.
+        Analyze the following HTML element and generate a UNIQUE, STABLE, and ROBUST locator.
+
+        HTML:
+        {html}
+
+        STRICT LOCATOR GENERATION RULES:
+        1. First priority: ID (only if stable and unique — NOT if it's dynamic like id="mat-input-15")
+        2. Second: Visible text (exact or contains)
+        3. Third: Stable attributes (name, placeholder, type, aria-*, data-* attributes)
+        4. Fourth: Parent → Child relationship
+        5. Avoid class unless clearly unique and stable
+        6. Detect dynamic attributes (random IDs like id="a123x9", dynamic classes like "ng-xyz-123") and AVOID them
+        7. Use index ONLY as last fallback
+
+        ABSOLUTE XPATH FORBIDDEN (CRITICAL — HIGHEST PRIORITY RULE):
+        - NEVER return any locator starting with /html or /html/body under ANY condition
+        - If the HTML contains an existing /html/body/... locator — IGNORE it, rewrite into relative XPath
+        - Any answer containing /html/body is INVALID and must be corrected before returning
+        - For Angular Material elements:
+            ✔ mat-select  → //mat-select
+            ✔ mat-option  → //mat-option[normalize-space()="OptionText"]
+            ✔ mat-dialog  → //mat-dialog-container
+            ✔ Text match  → //span[normalize-space()="Text"]
+        - If no obvious locator exists → build a parent-child relative XPath:
+            e.g. //div[@role='dialog']//button[normalize-space()='Submit']
+        - NEVER fall back to absolute XPath under any circumstances
+
+        SMART DETECTION:
+        - Identify dynamic values and avoid them
+        - Prefer contains() for partially dynamic attributes
+        - Combine multiple attributes if needed to ensure uniqueness
+        - Ensure locator matches ONLY ONE element
+
+        Return a JSON object with EXACTLY this structure:
+        {{
+          "best_xpath": "//...",
+          "alt_xpath": "//...",
+          "reason": "Why this locator is stable and unique",
+          "selenium_code": "driver.find_element(By.XPATH, \\"//...\\")",
+          "robot_code": "Click Element    //..."
+        }}
+        Return ONLY the JSON. No markdown, no backticks, no extra text.
+        """
+        response_text = AIService.generate_ai_output(prompt)
+        try:
+            import re
+            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+            if json_match:
+                return json.loads(json_match.group(0))
+            return json.loads(response_text)
+        except Exception as e:
+            print(f"[AI] Failed to parse generate_locator response: {e}")
+            return {
+                "best_xpath": "",
+                "alt_xpath": "",
+                "reason": "AI failed to parse the HTML. Please check the input.",
+                "selenium_code": "",
+                "robot_code": "",
+                "raw": response_text
+            }
 
     @staticmethod
     def analyze_steps(steps: List[dict]) -> str:
@@ -261,6 +476,7 @@ class AIService:
         Generates both BDD and Robot formats in a single AI call.
         Returns a dictionary with 'bdd' and 'robot' keys.
         """
+        steps = AIService._filter_redundant_steps(steps)
         prompt = f"""
         Convert the following REAL browser automation steps into two formats:
         1. Professional Gherkin BDD Scenario
@@ -299,27 +515,109 @@ class AIService:
           - Any position/index-based option selection
         
         - For Robot Framework:
-            - The script MUST start with a valid `*** Settings ***` section containing `Library    SeleniumLibrary`.
-            - Ensure a valid `*** Test Cases ***` block is present.
-            - Provide a `*** Variables ***` section for all locators AND URLs.
-            - For the VERY FIRST navigation step in the test case, use `Open Browser    ${{URL_VAR}}    chrome` followed by `Maximize Browser Window`. NEVER start with just `Go To`.
-            - LOCATOR PRIORITY (Use exact css prefix syntax):
-              1. id -> css=#id
-              2. name -> css=[name='value']
-              3. data-testid -> css=[data-testid='value']
-              4. xpath (last resort)
-            - VARIABLE NAMING:
-              - input/textarea -> *_FIELD
-              - button -> *_BUTTON
-              - link (a) -> *_LINK
-              - select/dropdown -> *_DROPDOWN
-              - option -> *_OPTION
-              - generic -> *_ELEMENT
-              - Use element id, placeholder, or innerText for the name part.
-            - Add retry logic: 'Wait Until Keyword Succeeds    15x    2s' for every step including Go To (Make sure you use exactly 4 spaces to separate arguments, NOT a single space!).
-            - Every action (Click, Input, etc.) MUST Wait Until Element Is Visible (with retry) BEFORE interaction.
-            - Avoid duplicate variables. If a locator or URL is used multiple times, reuse the variable.
-        - If no steps are provided, indicate that no actions were recorded.
+            - The script MUST start with `*** Settings ***` containing `Library    SeleniumLibrary`.
+            - Ensure valid `*** Test Cases ***` and `*** Variables ***` blocks.
+
+            ===========================================
+            🛠️ KEYWORDS (STABILITY):
+            ===========================================
+            - ALWAYS use `Wait Until Element Is Visible    ${{locator}}    15s` before Click or Input.
+            - Create Reusable Keywords:
+                Wait And Click
+                    [Arguments]    ${{locator}}
+                    Wait Until Element Is Visible    ${{locator}}    15s
+                    Click Element    ${{locator}}
+
+                Wait And Input
+                    [Arguments]    ${{locator}}    ${{text}}
+                    Wait Until Element Is Visible    ${{locator}}    15s
+                    Input Text    ${{locator}}    ${{text}}
+
+            ===========================================
+            🌐 BROWSER & CACHE SETUP (MANDATORY):
+            ===========================================
+            - ALWAYS start the test case with a clean WebDriver using SEPARATE Call Method lines:
+                ${{options}}=    Evaluate    sys.modules['selenium.webdriver'].ChromeOptions()    sys, selenium.webdriver
+                Call Method    ${{options}}    add_argument    --disable-notifications
+                Call Method    ${{options}}    add_argument    --disable-infobars
+                ${{prefs}}=    Create Dictionary    profile.default_content_setting_values.notifications=2    credentials_enable_service=${{False}}    profile.password_manager_enabled=${{False}}
+                Call Method    ${{options}}    add_experimental_option    prefs    ${{prefs}}
+                Create Webdriver    Chrome    options=${{options}}
+                Go To    ${{URL}}
+                Maximize Browser Window
+            - NEVER use "Open Browser". Use "Create Webdriver" for better control.
+            - NEVER combine Call Method calls with semicolons or on one line.
+
+            ===========================================
+            🚫 LOCATOR STRATEGY (STRICT RULES):
+            ===========================================
+            - ABSOLUTELY FORBIDDEN: Absolute XPaths like `/html/body/...`
+            - ABSOLUTELY FORBIDDEN: Dynamic Angular/Material IDs like `mat-option-123`, `mat-input-0`
+            - PREFERRED: id=, name=, placeholder=
+            - FOR TEXT: Use `xpath=//tag[normalize-space()='Text']` or `xpath=//*[contains(normalize-space(), 'Text')]`
+            - FOR BUTTONS: Use `xpath=//button[normalize-space()='Submit']`
+            - Ensure all locators are stable and unique.
+            - NEVER use /html/body/... or any absolute XPath — INVALID, must be rewritten
+            - NEVER use index-based locators: div[2], span[3], li[4] — FORBIDDEN
+            - NEVER use Angular auto-generated IDs: id=mat-input-15, id=mat-option-272 — FORBIDDEN
+            - LOCATOR PRIORITY:
+                1. id     → css=#stable-id
+                2. name   → //tag[@name='value']
+                3. placeholder → //input[@placeholder='value']
+                4. Visible text → //tag[normalize-space()='Text']
+                5. Stable data-* or aria-* attribute
+                6. Relative parent→child XPath (LAST RESORT — NEVER absolute)
+
+            ===========================================
+            🎯 ANGULAR MATERIAL DROPDOWNS:
+            ===========================================
+            - Click trigger: //mat-select (or closest stable parent)
+            - Select option: //mat-option//span[normalize-space()='VALUE']
+            - NEVER use (//mat-option)[1], index-based selection, or mat-option-XXX IDs
+            - PATTERN:
+                Wait Until Element Is Visible    //mat-select    10s
+                Click Element    //mat-select
+                Wait Until Element Is Visible    //mat-option//span[normalize-space()='VALUE']    10s
+                Click Element    //mat-option//span[normalize-space()='VALUE']
+
+            ===========================================
+            ⌨️ INPUT PATTERN (MANDATORY — ONE BLOCK PER FIELD):
+            ===========================================
+            - NEVER type character by character (Input Text    S / Input Text    Sh = INVALID)
+            - NEVER wrap Input Text in Wait Until Keyword Succeeds
+            - ALWAYS use this exact pattern:
+                Wait Until Element Is Visible    ${{LOCATOR}}    10s
+                Clear Element Text    ${{LOCATOR}}
+                Input Text    ${{LOCATOR}}    ${{FULL_VALUE}}
+                Element Attribute Value Should Be    ${{LOCATOR}}    value    ${{FULL_VALUE}}
+
+            ===========================================
+            🖱️ CLICK PATTERN:
+            ===========================================
+                Wait Until Element Is Visible    ${{LOCATOR}}    10s
+                Click Element    ${{LOCATOR}}
+            - Use `Wait Until Keyword Succeeds    3x    2s    Click Element    ${{LOCATOR}}` only when needed for unstable elements.
+            - NEVER use Wait Until Keyword Succeeds for Input Text.
+
+            ===========================================
+            📦 VARIABLES & NAMING (CLEANUP):
+            ===========================================
+            - Extract ALL locators and URLs into `*** Variables ***`
+            - DO NOT create duplicate variables for the same locator.
+            - Variable names MUST be valid (A-Z, 0-9, _). NO spaces.
+            - DO NOT start variables with numbers. Use ${{VAR_1_ELEMENT}} or ${{ELEMENT_1}} instead.
+            - Remove any "undefined" locators.
+            - mat-select/dropdown → *_DROPDOWN
+            - mat-option → *_OPTION
+            - generic → *_ELEMENT
+            - Reuse variables — no duplicates
+
+            ===========================================
+            🧹 CLEAN STRUCTURE:
+            ===========================================
+            - One action per step — no duplicate Input Text for same field
+            - Create reusable keywords: Wait And Click, Wait And Input
+            - Keep script FAST, CLEAN, and PRODUCTION-READY
 
         Steps: {json.dumps(steps)}
 
@@ -346,6 +644,71 @@ class AIService:
                 "bdd": AIService.generate_bdd_test_case(steps),
                 "robot": AIService.generate_robot_script(steps)
             }
+
+    @staticmethod
+    def _filter_redundant_steps(steps: List[dict]) -> List[dict]:
+        """
+        Removes redundant 'navigate' steps that immediately follow a 'click' or 'input' 
+        in the same tab, as those actions likely triggered the navigation anyway.
+        Also removes consecutive 'navigate' steps to the same URL.
+        """
+        if not steps:
+            return []
+            
+        filtered = []
+        for i, step in enumerate(steps):
+            action = step.get("action")
+            url = step.get("value")
+            tab = step.get("tab_index", 0)
+            
+            if action == "navigate":
+                # Skip if it's the same URL as the previous step in the same tab
+                if filtered and filtered[-1].get("action") == "navigate" and filtered[-1].get("value") == url and filtered[-1].get("tab_index", 0) == tab:
+                    continue
+                
+                # Skip if the previous step was an interaction in the same tab (click/input/select)
+                # Reason: The interaction likely caused the navigation.
+                if filtered and filtered[-1].get("action") in ["click", "input", "select"] and filtered[-1].get("tab_index", 0) == tab:
+                    print(f"[FILTER] Removing redundant navigation to {url} following {filtered[-1].get('action')}")
+                    continue
+            
+            filtered.append(step)
+            
+        return filtered
+
+    @staticmethod
+    def _collapse_input_steps(steps: List[dict]) -> List[dict]:
+        """
+        Collapses consecutive input steps for the same field into ONE step with the final value.
+        This is a backend safety net against character-by-character typing recorded by the JS recorder.
+        e.g. input 'S', input 'Sh', input 'Shi' → input 'Shilpi@gmail.com'
+        """
+        if not steps:
+            return []
+        
+        collapsed = []
+        i = 0
+        while i < len(steps):
+            step = steps[i]
+            if step.get('action') == 'input':
+                selector = step.get('selector')
+                # Gather all consecutive input steps for this same selector
+                group = [step]
+                j = i + 1
+                while j < len(steps) and steps[j].get('action') == 'input' and steps[j].get('selector') == selector:
+                    group.append(steps[j])
+                    j += 1
+                # Keep only the last one (final value)
+                final_step = group[-1]
+                if len(group) > 1:
+                    print(f"[COLLAPSE] Collapsed {len(group)} input steps for '{selector}' → final value: '{final_step.get('value')}'")
+                collapsed.append(final_step)
+                i = j
+            else:
+                collapsed.append(step)
+                i += 1
+        
+        return collapsed
 
     @staticmethod
     def generate_ai_output(prompt: str) -> str:

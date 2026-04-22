@@ -63,8 +63,8 @@ async def input_text(req: ActionRequest):
 @router.get("/steps")
 async def get_steps():
     try:
-        # Sync steps from browser before returning
-        steps = selenium_service.sync_browser_steps()
+        # Rely on background sync thread
+        steps = selenium_service.get_steps()
         return {"status": "success", "steps": steps}
     except Exception as e:
         print(f"[API ERROR] /steps: {e}")

@@ -1,847 +1,399 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<robot generator="Robot 7.4.2 (Python 3.11.9 on darwin)" generated="2026-04-15T17:23:37.985619" rpa="false" schemaversion="5">
-<suite id="s1" name="Temp" source="/Users/kmshilpi/Desktop/Automation_TestingAI/backend/temp.robot">
-<test id="s1-t1" name="Create New Survey" line="39">
-<kw name="Open Browser" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:23:38.088760" level="INFO">Opening browser 'chrome' to base url 'https://ensite.wattmonk.com/home/survey/overview'.</msg>
-<arg>${ENSITE_URL}</arg>
-<arg>chrome</arg>
-<doc>Opens a new browser instance to the optional ``url``.</doc>
-<status status="PASS" start="2026-04-15T17:23:38.088644" elapsed="3.284725"/>
+<robot generator="Robot 7.3.2 (Python 3.9.6 on darwin)" generated="2026-04-22T18:08:58.284581" rpa="false" schemaversion="5">
+<suite id="s1" name="Temp" source="/Users/wattmonk/Desktop/AUTOSCRIPT_20APRIL/AutoScript_Genarator.Ai/backend/temp.robot">
+<test id="s1-t1" name="End To End Flow" line="17">
+<kw name="Evaluate" owner="BuiltIn">
+<msg time="2026-04-22T18:08:58.454206" level="INFO">${options} = &lt;selenium.webdriver.chrome.options.Options object at 0x106e306a0&gt;</msg>
+<var>${options}</var>
+<arg>sys.modules['selenium.webdriver'].ChromeOptions()</arg>
+<arg>sys, selenium.webdriver</arg>
+<doc>Evaluates the given expression in Python and returns the result.</doc>
+<status status="PASS" start="2026-04-22T18:08:58.453902" elapsed="0.000343"/>
+</kw>
+<kw name="Call Method" owner="BuiltIn">
+<arg>${options}</arg>
+<arg>add_argument</arg>
+<arg>--disable-notifications</arg>
+<doc>Calls the named method of the given object with the provided arguments.</doc>
+<status status="PASS" start="2026-04-22T18:08:58.454380" elapsed="0.000147"/>
+</kw>
+<kw name="Call Method" owner="BuiltIn">
+<arg>${options}</arg>
+<arg>add_argument</arg>
+<arg>--disable-infobars</arg>
+<doc>Calls the named method of the given object with the provided arguments.</doc>
+<status status="PASS" start="2026-04-22T18:08:58.454655" elapsed="0.000151"/>
+</kw>
+<kw name="Create Dictionary" owner="BuiltIn">
+<msg time="2026-04-22T18:08:58.462927" level="INFO">${prefs} = {'profile.default_content_setting_values.notifications': '2', 'credentials_enable_service': False, 'profile.password_manager_enabled': False}</msg>
+<var>${prefs}</var>
+<arg>profile.default_content_setting_values.notifications=2</arg>
+<arg>credentials_enable_service=${False}</arg>
+<arg>profile.password_manager_enabled=${False}</arg>
+<doc>Creates and returns a dictionary based on the given ``items``.</doc>
+<status status="PASS" start="2026-04-22T18:08:58.454930" elapsed="0.008048"/>
+</kw>
+<kw name="Call Method" owner="BuiltIn">
+<arg>${options}</arg>
+<arg>add_experimental_option</arg>
+<arg>prefs</arg>
+<arg>${prefs}</arg>
+<doc>Calls the named method of the given object with the provided arguments.</doc>
+<status status="PASS" start="2026-04-22T18:08:58.463128" elapsed="0.000204"/>
+</kw>
+<kw name="Create Webdriver" owner="SeleniumLibrary">
+<msg time="2026-04-22T18:08:58.463637" level="INFO">Creating an instance of the Chrome WebDriver.</msg>
+<arg>Chrome</arg>
+<arg>options=${options}</arg>
+<doc>Creates an instance of Selenium WebDriver.</doc>
+<status status="PASS" start="2026-04-22T18:08:58.463452" elapsed="1.934978"/>
+</kw>
+<kw name="Go To" owner="SeleniumLibrary">
+<msg time="2026-04-22T18:09:00.417587" level="INFO">Opening url 'https://ensite.wattmonk.com/'</msg>
+<arg>${URL}</arg>
+<doc>Navigates the current browser window to the provided ``url``.</doc>
+<status status="PASS" start="2026-04-22T18:09:00.399890" elapsed="7.758448"/>
 </kw>
 <kw name="Maximize Browser Window" owner="SeleniumLibrary">
 <doc>Maximizes current browser window.</doc>
-<status status="PASS" start="2026-04-15T17:23:41.375098" elapsed="9.925887"/>
+<status status="PASS" start="2026-04-22T18:09:08.159484" elapsed="0.318521"/>
 </kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<kw name="Go To" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:23:51.302027" level="INFO">Opening url 'https://ensite.wattmonk.com/home/survey/overview'</msg>
-<arg>${ENSITE_URL}</arg>
-<doc>Navigates the current browser window to the provided ``url``.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.301896" elapsed="0.344679"/>
-</kw>
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Go To</arg>
-<arg>${ENSITE_URL}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.301307" elapsed="0.345346"/>
-</kw>
+<kw name="Wait And Input">
 <kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
 <kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<arg>${WELCOME_SECTION_XPATH}</arg>
+<arg>${locator}</arg>
+<arg>15s</arg>
 <doc>Waits until the element ``locator`` is visible.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.647085" elapsed="0.020180"/>
+<status status="PASS" start="2026-04-22T18:09:08.479880" elapsed="0.023247"/>
 </kw>
-<arg>15x</arg>
+<arg>10x</arg>
 <arg>2s</arg>
 <arg>Wait Until Element Is Visible</arg>
-<arg>${WELCOME_SECTION_XPATH}</arg>
+<arg>${locator}</arg>
+<arg>15s</arg>
 <doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.646792" elapsed="0.020571"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<kw name="Click Element" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:23:51.667846" level="INFO">Clicking element 'xpath=/html/body/app-root/layout/empty-layout/div/div/auth-sign-in/div/div[2]'.</msg>
-<arg>${WELCOME_SECTION_XPATH}</arg>
-<doc>Click the element identified by ``locator``.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.667736" elapsed="0.027914"/>
-</kw>
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${WELCOME_SECTION_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.667465" elapsed="0.028237"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<arg>${EMAIL_FIELD}</arg>
-<doc>Waits until the element ``locator`` is visible.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.695975" elapsed="0.007307"/>
-</kw>
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${EMAIL_FIELD}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.695779" elapsed="0.007545"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<kw name="Click Element" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:23:51.703653" level="INFO">Clicking element 'css=#input_email'.</msg>
-<arg>${EMAIL_FIELD}</arg>
-<doc>Click the element identified by ``locator``.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.703564" elapsed="0.031599"/>
-</kw>
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${EMAIL_FIELD}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.703385" elapsed="0.031837"/>
+<status status="PASS" start="2026-04-22T18:09:08.479508" elapsed="0.023749"/>
 </kw>
 <kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
 <kw name="Input Text" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:23:51.735655" level="INFO">Typing text 'khatter@gmail.com' into text field 'css=#input_email'.</msg>
-<arg>${EMAIL_FIELD}</arg>
-<arg>khatter@gmail.com</arg>
+<msg time="2026-04-22T18:09:08.504083" level="INFO">Typing text 'Shilpi_prepaid@gmail.com' into text field 'id=input_email'.</msg>
+<arg>${locator}</arg>
+<arg>${text}</arg>
 <doc>Types the given ``text`` into the text field identified by ``locator``.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.735540" elapsed="0.060188"/>
+<status status="PASS" start="2026-04-22T18:09:08.503697" elapsed="0.160217"/>
 </kw>
-<arg>15x</arg>
+<arg>10x</arg>
 <arg>2s</arg>
 <arg>Input Text</arg>
-<arg>${EMAIL_FIELD}</arg>
-<arg>khatter@gmail.com</arg>
+<arg>${locator}</arg>
+<arg>${text}</arg>
 <doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.735312" elapsed="0.060479"/>
+<status status="PASS" start="2026-04-22T18:09:08.503444" elapsed="0.160635"/>
 </kw>
+<arg>id=input_email</arg>
+<arg>Shilpi_prepaid@gmail.com</arg>
+<status status="PASS" start="2026-04-22T18:09:08.478777" elapsed="0.185448"/>
+</kw>
+<kw name="Wait And Input">
 <kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
 <kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<arg>${PASSWORD_FIELD}</arg>
+<arg>${locator}</arg>
+<arg>15s</arg>
 <doc>Waits until the element ``locator`` is visible.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.796135" elapsed="0.008947"/>
+<status status="PASS" start="2026-04-22T18:09:08.665212" elapsed="0.075201"/>
 </kw>
-<arg>15x</arg>
+<arg>10x</arg>
 <arg>2s</arg>
 <arg>Wait Until Element Is Visible</arg>
-<arg>${PASSWORD_FIELD}</arg>
+<arg>${locator}</arg>
+<arg>15s</arg>
 <doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.795883" elapsed="0.009315"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<kw name="Click Element" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:23:51.805833" level="INFO">Clicking element 'css=#password'.</msg>
-<arg>${PASSWORD_FIELD}</arg>
-<doc>Click the element identified by ``locator``.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.805712" elapsed="0.034625"/>
-</kw>
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${PASSWORD_FIELD}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.805407" elapsed="0.034990"/>
+<status status="PASS" start="2026-04-22T18:09:08.664960" elapsed="0.075638"/>
 </kw>
 <kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
 <kw name="Input Text" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:23:51.840825" level="INFO">Typing text 'test123' into text field 'css=#password'.</msg>
-<arg>${PASSWORD_FIELD}</arg>
-<arg>test123</arg>
+<msg time="2026-04-22T18:09:08.741597" level="INFO">Typing text 'Shubham@123' into text field 'id=password'.</msg>
+<arg>${locator}</arg>
+<arg>${text}</arg>
 <doc>Types the given ``text`` into the text field identified by ``locator``.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.840712" elapsed="0.055099"/>
+<status status="PASS" start="2026-04-22T18:09:08.741213" elapsed="0.202191"/>
 </kw>
-<arg>15x</arg>
+<arg>10x</arg>
 <arg>2s</arg>
 <arg>Input Text</arg>
-<arg>${PASSWORD_FIELD}</arg>
-<arg>test123</arg>
+<arg>${locator}</arg>
+<arg>${text}</arg>
 <doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.840484" elapsed="0.055386"/>
+<status status="PASS" start="2026-04-22T18:09:08.740863" elapsed="0.202878"/>
 </kw>
+<arg>id=password</arg>
+<arg>Shubham@123</arg>
+<status status="PASS" start="2026-04-22T18:09:08.664493" elapsed="0.279509"/>
+</kw>
+<kw name="Wait And Click">
 <kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
 <kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<arg>${SIGNIN_BUTTON}</arg>
+<arg>${locator}</arg>
+<arg>15s</arg>
 <doc>Waits until the element ``locator`` is visible.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.896163" elapsed="0.007868"/>
+<status status="PASS" start="2026-04-22T18:09:08.945496" elapsed="0.013005"/>
 </kw>
-<arg>15x</arg>
+<arg>10x</arg>
 <arg>2s</arg>
 <arg>Wait Until Element Is Visible</arg>
-<arg>${SIGNIN_BUTTON}</arg>
+<arg>${locator}</arg>
+<arg>15s</arg>
 <doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.895949" elapsed="0.008127"/>
+<status status="PASS" start="2026-04-22T18:09:08.945116" elapsed="0.013538"/>
 </kw>
 <kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
 <kw name="Click Element" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:23:51.904428" level="INFO">Clicking element 'css=#btn_signin_form_submit'.</msg>
-<arg>${SIGNIN_BUTTON}</arg>
+<msg time="2026-04-22T18:09:08.959352" level="INFO">Clicking element 'id=btn_signin_form_submit'.</msg>
+<arg>${locator}</arg>
 <doc>Click the element identified by ``locator``.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.904333" elapsed="0.030832"/>
+<status status="PASS" start="2026-04-22T18:09:08.959096" elapsed="0.087241"/>
 </kw>
-<arg>15x</arg>
+<arg>10x</arg>
 <arg>2s</arg>
 <arg>Click Element</arg>
-<arg>${SIGNIN_BUTTON}</arg>
+<arg>${locator}</arg>
 <doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.904151" elapsed="0.031071"/>
+<status status="PASS" start="2026-04-22T18:09:08.958839" elapsed="0.087628"/>
 </kw>
+<arg>id=btn_signin_form_submit</arg>
+<status status="PASS" start="2026-04-22T18:09:08.944440" elapsed="0.102127"/>
+</kw>
+<kw name="Wait And Click">
 <kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
 <kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<arg>${EMAIL_FIELD}</arg>
+<arg>${locator}</arg>
+<arg>15s</arg>
 <doc>Waits until the element ``locator`` is visible.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.935557" elapsed="0.007093"/>
+<status status="PASS" start="2026-04-22T18:09:09.047414" elapsed="0.649912"/>
 </kw>
-<arg>15x</arg>
+<arg>10x</arg>
 <arg>2s</arg>
 <arg>Wait Until Element Is Visible</arg>
-<arg>${EMAIL_FIELD}</arg>
+<arg>${locator}</arg>
+<arg>15s</arg>
 <doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.935316" elapsed="0.007390"/>
+<status status="PASS" start="2026-04-22T18:09:09.047185" elapsed="0.650379"/>
 </kw>
 <kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
 <kw name="Click Element" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:23:51.943160" level="INFO">Clicking element 'css=#input_email'.</msg>
-<arg>${EMAIL_FIELD}</arg>
+<msg time="2026-04-22T18:09:09.698197" level="INFO">Clicking element 'xpath=/html/body/app-root/layout/compact-layout/fuse-vertical-navigation/div/div[2]/fuse-vertical-navigation-basic-item[2]/div/div/img'.</msg>
+<arg>${locator}</arg>
 <doc>Click the element identified by ``locator``.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.943030" elapsed="0.925084"/>
+<status status="PASS" start="2026-04-22T18:09:09.697971" elapsed="0.038881"/>
 </kw>
-<arg>15x</arg>
+<arg>10x</arg>
 <arg>2s</arg>
 <arg>Click Element</arg>
-<arg>${EMAIL_FIELD}</arg>
+<arg>${locator}</arg>
 <doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="PASS" start="2026-04-15T17:23:51.942783" elapsed="0.925413"/>
+<status status="PASS" start="2026-04-22T18:09:09.697739" elapsed="0.039303"/>
 </kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<kw name="Input Text" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:23:52.868816" level="INFO">Typing text 'khattar@gmail.com' into text field 'css=#input_email'.</msg>
-<arg>${EMAIL_FIELD}</arg>
-<arg>khattar@gmail.com</arg>
-<doc>Types the given ``text`` into the text field identified by ``locator``.</doc>
-<status status="PASS" start="2026-04-15T17:23:52.868645" elapsed="0.041242"/>
+<arg>${ELEM_5_ELEMENT}</arg>
+<status status="PASS" start="2026-04-22T18:09:09.046788" elapsed="0.690347"/>
 </kw>
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Input Text</arg>
-<arg>${EMAIL_FIELD}</arg>
-<arg>khattar@gmail.com</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="PASS" start="2026-04-15T17:23:52.868318" elapsed="0.041626"/>
-</kw>
+<kw name="Wait And Click">
 <kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
 <kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<arg>${SIGNIN_BUTTON}</arg>
+<arg>${locator}</arg>
+<arg>15s</arg>
 <doc>Waits until the element ``locator`` is visible.</doc>
-<status status="PASS" start="2026-04-15T17:23:52.910251" elapsed="0.005174"/>
+<status status="PASS" start="2026-04-22T18:09:09.737847" elapsed="0.440423"/>
 </kw>
-<arg>15x</arg>
+<arg>10x</arg>
 <arg>2s</arg>
 <arg>Wait Until Element Is Visible</arg>
-<arg>${SIGNIN_BUTTON}</arg>
+<arg>${locator}</arg>
+<arg>15s</arg>
 <doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="PASS" start="2026-04-15T17:23:52.910029" elapsed="0.005436"/>
+<status status="PASS" start="2026-04-22T18:09:09.737654" elapsed="0.440877"/>
 </kw>
 <kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
 <kw name="Click Element" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:23:52.915778" level="INFO">Clicking element 'css=#btn_signin_form_submit'.</msg>
-<arg>${SIGNIN_BUTTON}</arg>
+<msg time="2026-04-22T18:09:10.179179" level="INFO">Clicking element 'id=survey_add_form'.</msg>
+<arg>${locator}</arg>
 <doc>Click the element identified by ``locator``.</doc>
-<status status="PASS" start="2026-04-15T17:23:52.915691" elapsed="0.033555"/>
+<status status="PASS" start="2026-04-22T18:09:10.178957" elapsed="0.077020"/>
 </kw>
-<arg>15x</arg>
+<arg>10x</arg>
 <arg>2s</arg>
 <arg>Click Element</arg>
-<arg>${SIGNIN_BUTTON}</arg>
+<arg>${locator}</arg>
 <doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="PASS" start="2026-04-15T17:23:52.915524" elapsed="0.033774"/>
+<status status="PASS" start="2026-04-22T18:09:10.178720" elapsed="0.077379"/>
 </kw>
+<arg>id=survey_add_form</arg>
+<status status="PASS" start="2026-04-22T18:09:09.737323" elapsed="0.518872"/>
+</kw>
+<kw name="Wait And Click">
 <kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
 <kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<arg>${NAVIGATION_ICON_XPATH}</arg>
+<arg>${locator}</arg>
+<arg>15s</arg>
 <doc>Waits until the element ``locator`` is visible.</doc>
-<status status="PASS" start="2026-04-15T17:23:52.949599" elapsed="0.914752"/>
+<status status="PASS" start="2026-04-22T18:09:10.256916" elapsed="0.240630"/>
 </kw>
-<arg>15x</arg>
+<arg>10x</arg>
 <arg>2s</arg>
 <arg>Wait Until Element Is Visible</arg>
-<arg>${NAVIGATION_ICON_XPATH}</arg>
+<arg>${locator}</arg>
+<arg>15s</arg>
 <doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="PASS" start="2026-04-15T17:23:52.949379" elapsed="0.915034"/>
+<status status="PASS" start="2026-04-22T18:09:10.256717" elapsed="0.240954"/>
 </kw>
 <kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
 <kw name="Click Element" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:23:53.864869" level="INFO">Clicking element 'xpath=/html/body/app-root/layout/compact-layout/fuse-vertical-navigation/div/div[2]/fuse-vertical-navigation-basic-item[2]/div/div/img'.</msg>
-<arg>${NAVIGATION_ICON_XPATH}</arg>
+<msg time="2026-04-22T18:09:10.498285" level="INFO">Clicking element 'id=sales_close'.</msg>
+<msg time="2026-04-22T18:09:11.742536" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-36.png"&gt;&lt;img src="selenium-screenshot-36.png" width="800px"&gt;&lt;/a&gt;</msg>
+<msg time="2026-04-22T18:09:11.743006" level="FAIL">ElementClickInterceptedException: Message: element click intercepted: Element &lt;button _ngcontent-koo-c156="" id="sales_close" mat-icon-button="" class="mat-focus-indicator mat-icon-button mat-button-base cdk-focused cdk-program-focused" style="margin-top: -22px;"&gt;...&lt;/button&gt; is not clickable at point (1390, 48). Other element would receive the click: &lt;div _ngcontent-koo-c87="" id="pause" class="d-flex align-items-center justify-content-center"&gt;...&lt;/div&gt;
+  (Session info: chrome=147.0.7727.102); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#elementclickinterceptedexception
+Stacktrace:
+0   chromedriver                        0x0000000102d3fabc cxxbridge1$str$ptr + 3192864
+1   chromedriver                        0x0000000102d37a8c cxxbridge1$str$ptr + 3160048
+2   chromedriver                        0x00000001028037c0 _RNvCs10ygTOo3JCa_7___rustc35___rust_no_alloc_shim_is_unstable_v2 + 75348
+3   chromedriver                        0x000000010285114c _RNvCs10ygTOo3JCa_7___rustc35___rust_no_alloc_shim_is_unstable_v2 + 393184
+4   chromedriver                        0x000000010284f674 _RNvCs10ygTOo3JCa_7___rustc35___rust_no_alloc_shim_is_unstable_v2 + 386312
+5   chromedriver                        0x000000010284d3dc _RNvCs10ygTOo3JCa_7___rustc35___rust_no_alloc_shim_is_unstable_v2 + 377456
+6   chromedriver                        0x000000010284c77c _RNvCs10ygTOo3JCa_7___rustc35___rust_no_alloc_shim_is_unstable_v2 + 374288
+7   chromedriver                        0x00000001028428dc _RNvCs10ygTOo3JCa_7___rustc35___rust_no_alloc_shim_is_unstable_v2 + 333680
+8   chromedriver                        0x0000000102842358 _RNvCs10ygTOo3JCa_7___rustc35___rust_no_alloc_shim_is_unstable_v2 + 332268
+9   chromedriver                        0x000000010288b448 _RNvCs10ygTOo3JCa_7___rustc35___rust_no_alloc_shim_is_unstable_v2 + 631516
+10  chromedriver                        0x0000000102840e50 _RNvCs10ygTOo3JCa_7___rustc35___rust_no_alloc_shim_is_unstable_v2 + 326884
+11  chromedriver                        0x0000000102cfd248 cxxbridge1$str$ptr + 2920364
+12  chromedriver                        0x0000000102d00a28 cxxbridge1$str$ptr + 2934668
+13  chromedriver                        0x0000000102ce31fc cxxbridge1$str$ptr + 2813792
+14  chromedriver                        0x0000000102d012a8 cxxbridge1$str$ptr + 2936844
+15  chromedriver                        0x0000000102cd4024 cxxbridge1$str$ptr + 2751880
+16  chromedriver                        0x0000000102d26988 cxxbridge1$str$ptr + 3090156
+17  chromedriver                        0x0000000102d26b04 cxxbridge1$str$ptr + 3090536
+18  chromedriver                        0x0000000102d376e4 cxxbridge1$str$ptr + 3159112
+19  libsystem_pthread.dylib             0x0000000189553c08 _pthread_start + 136
+20  libsystem_pthread.dylib             0x000000018954eba8 thread_start + 8
+</msg>
+<arg>${locator}</arg>
 <doc>Click the element identified by ``locator``.</doc>
-<status status="PASS" start="2026-04-15T17:23:53.864752" elapsed="0.061028"/>
+<status status="FAIL" start="2026-04-22T18:09:10.498064" elapsed="1.248648">ElementClickInterceptedException: Message: element click intercepted: Element &lt;button _ngcontent-koo-c156="" id="sales_close" mat-icon-button="" class="mat-focus-indicator mat-icon-button mat-button-base cdk-focused cdk-program-focused" style="margin-top: -22px;"&gt;...&lt;/button&gt; is not clickable at point (1390, 48). Other element would receive the click: &lt;div _ngcontent-koo-c87="" id="pause" class="d-flex align-items-center justify-content-center"&gt;...&lt;/div&gt;
+  (Session info: chrome=147.0.7727.102); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#elementclickinterceptedexception
+Stacktrace:
+0   chromedriver                        0x0000000102d3fabc cxxbridge1$str$ptr + 3192864
+1   chromedriver                        0x0000000102d37a8c cxxbridge1$str$ptr + 3160048
+2   chromedriver                        0x00000001028037c0 _RNvCs10ygTOo3JCa_7___rustc35___rust_no_alloc_shim_is_unstable_v2 + 75348
+3   chromedriver                        0x000000010285114c _RNvCs10ygTOo3JCa_7___rustc35___rust_no_alloc_shim_is_unstable_v2 + 393184
+4   chromedriver                        0x000000010284f674 _RNvCs10ygTOo3JCa_7___rustc35___rust_no_alloc_shim_is_unstable_v2 + 386312
+    [ Message content over the limit has been removed. ]
+... _RNvCs10ygTOo3JCa_7___rustc35___rust_no_alloc_shim_is_unstable_v2 + 326884
+11  chromedriver                        0x0000000102cfd248 cxxbridge1$str$ptr + 2920364
+12  chromedriver                        0x0000000102d00a28 cxxbridge1$str$ptr + 2934668
+13  chromedriver                        0x0000000102ce31fc cxxbridge1$str$ptr + 2813792
+14  chromedriver                        0x0000000102d012a8 cxxbridge1$str$ptr + 2936844
+15  chromedriver                        0x0000000102cd4024 cxxbridge1$str$ptr + 2751880
+16  chromedriver                        0x0000000102d26988 cxxbridge1$str$ptr + 3090156
+17  chromedriver                        0x0000000102d26b04 cxxbridge1$str$ptr + 3090536
+18  chromedriver                        0x0000000102d376e4 cxxbridge1$str$ptr + 3159112
+19  libsystem_pthread.dylib             0x0000000189553c08 _pthread_start + 136
+20  libsystem_pthread.dylib             0x000000018954eba8 thread_start + 8</status>
 </kw>
-<arg>15x</arg>
+<kw name="Click Element" owner="SeleniumLibrary">
+<msg time="2026-04-22T18:09:13.748108" level="INFO">Clicking element 'id=sales_close'.</msg>
+<arg>${locator}</arg>
+<doc>Click the element identified by ``locator``.</doc>
+<status status="PASS" start="2026-04-22T18:09:13.747516" elapsed="0.044625"/>
+</kw>
+<arg>10x</arg>
 <arg>2s</arg>
 <arg>Click Element</arg>
-<arg>${NAVIGATION_ICON_XPATH}</arg>
+<arg>${locator}</arg>
 <doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="PASS" start="2026-04-15T17:23:53.864502" elapsed="0.061466"/>
+<status status="PASS" start="2026-04-22T18:09:10.497838" elapsed="3.294420"/>
 </kw>
+<arg>id=sales_close</arg>
+<status status="PASS" start="2026-04-22T18:09:10.256387" elapsed="3.535974"/>
+</kw>
+<kw name="Wait And Click">
 <kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
 <kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<arg>${ADD_WORKORDER_BUTTON}</arg>
+<arg>${locator}</arg>
+<arg>15s</arg>
 <doc>Waits until the element ``locator`` is visible.</doc>
-<status status="PASS" start="2026-04-15T17:23:53.926639" elapsed="0.007815"/>
+<status status="PASS" start="2026-04-22T18:09:13.793151" elapsed="0.015386"/>
 </kw>
-<arg>15x</arg>
+<arg>10x</arg>
 <arg>2s</arg>
 <arg>Wait Until Element Is Visible</arg>
-<arg>${ADD_WORKORDER_BUTTON}</arg>
+<arg>${locator}</arg>
+<arg>15s</arg>
 <doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="PASS" start="2026-04-15T17:23:53.926347" elapsed="0.008155"/>
+<status status="PASS" start="2026-04-22T18:09:13.792939" elapsed="0.015715"/>
 </kw>
 <kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
 <kw name="Click Element" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:23:53.934845" level="INFO">Clicking element 'css=#survey_add_form'.</msg>
-<arg>${ADD_WORKORDER_BUTTON}</arg>
+<msg time="2026-04-22T18:09:13.809384" level="INFO">Clicking element 'id=profile'.</msg>
+<arg>${locator}</arg>
 <doc>Click the element identified by ``locator``.</doc>
-<status status="PASS" start="2026-04-15T17:23:53.934758" elapsed="0.049065"/>
+<status status="PASS" start="2026-04-22T18:09:13.809125" elapsed="0.111421"/>
 </kw>
-<arg>15x</arg>
+<arg>10x</arg>
 <arg>2s</arg>
 <arg>Click Element</arg>
-<arg>${ADD_WORKORDER_BUTTON}</arg>
+<arg>${locator}</arg>
 <doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="PASS" start="2026-04-15T17:23:53.934572" elapsed="0.049311"/>
+<status status="PASS" start="2026-04-22T18:09:13.808855" elapsed="0.112196"/>
 </kw>
+<arg>id=profile</arg>
+<status status="PASS" start="2026-04-22T18:09:13.792590" elapsed="0.128596"/>
+</kw>
+<kw name="Wait And Click">
 <kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
 <kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:23:59.192305" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-59.png"&gt;&lt;img src="selenium-screenshot-59.png" width="800px"&gt;&lt;/a&gt;</msg>
-<msg time="2026-04-15T17:23:59.192397" level="FAIL">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</msg>
-<arg>${SURVEY_TYPE_DROPDOWN_XPATH}</arg>
+<arg>${locator}</arg>
+<arg>15s</arg>
 <doc>Waits until the element ``locator`` is visible.</doc>
-<status status="FAIL" start="2026-04-15T17:23:53.984210" elapsed="5.209845">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</status>
+<status status="PASS" start="2026-04-22T18:09:13.922054" elapsed="0.223713"/>
 </kw>
-<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:24:06.434198" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-60.png"&gt;&lt;img src="selenium-screenshot-60.png" width="800px"&gt;&lt;/a&gt;</msg>
-<msg time="2026-04-15T17:24:06.434284" level="FAIL">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</msg>
-<arg>${SURVEY_TYPE_DROPDOWN_XPATH}</arg>
-<doc>Waits until the element ``locator`` is visible.</doc>
-<status status="FAIL" start="2026-04-15T17:24:01.195653" elapsed="5.238865">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</status>
-</kw>
-<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:24:13.731103" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-61.png"&gt;&lt;img src="selenium-screenshot-61.png" width="800px"&gt;&lt;/a&gt;</msg>
-<msg time="2026-04-15T17:24:13.731184" level="FAIL">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</msg>
-<arg>${SURVEY_TYPE_DROPDOWN_XPATH}</arg>
-<doc>Waits until the element ``locator`` is visible.</doc>
-<status status="FAIL" start="2026-04-15T17:24:08.435498" elapsed="5.295889">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</status>
-</kw>
-<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:24:20.984519" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-62.png"&gt;&lt;img src="selenium-screenshot-62.png" width="800px"&gt;&lt;/a&gt;</msg>
-<msg time="2026-04-15T17:24:20.984603" level="FAIL">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</msg>
-<arg>${SURVEY_TYPE_DROPDOWN_XPATH}</arg>
-<doc>Waits until the element ``locator`` is visible.</doc>
-<status status="FAIL" start="2026-04-15T17:24:15.732524" elapsed="5.252731">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</status>
-</kw>
-<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:24:28.248548" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-63.png"&gt;&lt;img src="selenium-screenshot-63.png" width="800px"&gt;&lt;/a&gt;</msg>
-<msg time="2026-04-15T17:24:28.248632" level="FAIL">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</msg>
-<arg>${SURVEY_TYPE_DROPDOWN_XPATH}</arg>
-<doc>Waits until the element ``locator`` is visible.</doc>
-<status status="FAIL" start="2026-04-15T17:24:22.986407" elapsed="5.262427">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</status>
-</kw>
-<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:24:35.496893" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-64.png"&gt;&lt;img src="selenium-screenshot-64.png" width="800px"&gt;&lt;/a&gt;</msg>
-<msg time="2026-04-15T17:24:35.496972" level="FAIL">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</msg>
-<arg>${SURVEY_TYPE_DROPDOWN_XPATH}</arg>
-<doc>Waits until the element ``locator`` is visible.</doc>
-<status status="FAIL" start="2026-04-15T17:24:30.249522" elapsed="5.247656">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</status>
-</kw>
-<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:24:42.740315" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-65.png"&gt;&lt;img src="selenium-screenshot-65.png" width="800px"&gt;&lt;/a&gt;</msg>
-<msg time="2026-04-15T17:24:42.740396" level="FAIL">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</msg>
-<arg>${SURVEY_TYPE_DROPDOWN_XPATH}</arg>
-<doc>Waits until the element ``locator`` is visible.</doc>
-<status status="FAIL" start="2026-04-15T17:24:37.500264" elapsed="5.240349">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</status>
-</kw>
-<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:24:49.950520" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-66.png"&gt;&lt;img src="selenium-screenshot-66.png" width="800px"&gt;&lt;/a&gt;</msg>
-<msg time="2026-04-15T17:24:49.950608" level="FAIL">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</msg>
-<arg>${SURVEY_TYPE_DROPDOWN_XPATH}</arg>
-<doc>Waits until the element ``locator`` is visible.</doc>
-<status status="FAIL" start="2026-04-15T17:24:44.741981" elapsed="5.208841">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</status>
-</kw>
-<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:24:57.197501" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-67.png"&gt;&lt;img src="selenium-screenshot-67.png" width="800px"&gt;&lt;/a&gt;</msg>
-<msg time="2026-04-15T17:24:57.197613" level="FAIL">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</msg>
-<arg>${SURVEY_TYPE_DROPDOWN_XPATH}</arg>
-<doc>Waits until the element ``locator`` is visible.</doc>
-<status status="FAIL" start="2026-04-15T17:24:51.951352" elapsed="5.246506">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</status>
-</kw>
-<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:25:04.462117" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-68.png"&gt;&lt;img src="selenium-screenshot-68.png" width="800px"&gt;&lt;/a&gt;</msg>
-<msg time="2026-04-15T17:25:04.462200" level="FAIL">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</msg>
-<arg>${SURVEY_TYPE_DROPDOWN_XPATH}</arg>
-<doc>Waits until the element ``locator`` is visible.</doc>
-<status status="FAIL" start="2026-04-15T17:24:59.198680" elapsed="5.263755">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</status>
-</kw>
-<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:25:11.703617" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-69.png"&gt;&lt;img src="selenium-screenshot-69.png" width="800px"&gt;&lt;/a&gt;</msg>
-<msg time="2026-04-15T17:25:11.703694" level="FAIL">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</msg>
-<arg>${SURVEY_TYPE_DROPDOWN_XPATH}</arg>
-<doc>Waits until the element ``locator`` is visible.</doc>
-<status status="FAIL" start="2026-04-15T17:25:06.463442" elapsed="5.240456">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</status>
-</kw>
-<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:25:18.952504" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-70.png"&gt;&lt;img src="selenium-screenshot-70.png" width="800px"&gt;&lt;/a&gt;</msg>
-<msg time="2026-04-15T17:25:18.952583" level="FAIL">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</msg>
-<arg>${SURVEY_TYPE_DROPDOWN_XPATH}</arg>
-<doc>Waits until the element ``locator`` is visible.</doc>
-<status status="FAIL" start="2026-04-15T17:25:13.704952" elapsed="5.247830">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</status>
-</kw>
-<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:25:26.227325" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-71.png"&gt;&lt;img src="selenium-screenshot-71.png" width="800px"&gt;&lt;/a&gt;</msg>
-<msg time="2026-04-15T17:25:26.227403" level="FAIL">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</msg>
-<arg>${SURVEY_TYPE_DROPDOWN_XPATH}</arg>
-<doc>Waits until the element ``locator`` is visible.</doc>
-<status status="FAIL" start="2026-04-15T17:25:20.954308" elapsed="5.273811">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</status>
-</kw>
-<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:25:33.490957" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-72.png"&gt;&lt;img src="selenium-screenshot-72.png" width="800px"&gt;&lt;/a&gt;</msg>
-<msg time="2026-04-15T17:25:33.491033" level="FAIL">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</msg>
-<arg>${SURVEY_TYPE_DROPDOWN_XPATH}</arg>
-<doc>Waits until the element ``locator`` is visible.</doc>
-<status status="FAIL" start="2026-04-15T17:25:28.230588" elapsed="5.260647">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</status>
-</kw>
-<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
-<msg time="2026-04-15T17:25:40.738089" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-73.png"&gt;&lt;img src="selenium-screenshot-73.png" width="800px"&gt;&lt;/a&gt;</msg>
-<msg time="2026-04-15T17:25:40.738166" level="FAIL">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</msg>
-<arg>${SURVEY_TYPE_DROPDOWN_XPATH}</arg>
-<doc>Waits until the element ``locator`` is visible.</doc>
-<status status="FAIL" start="2026-04-15T17:25:35.492519" elapsed="5.245837">Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</status>
-</kw>
-<msg time="2026-04-15T17:25:40.738416" level="FAIL">Keyword 'Wait Until Element Is Visible' failed after retrying 15 times. The last error was: Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</msg>
-<arg>15x</arg>
+<arg>10x</arg>
 <arg>2s</arg>
 <arg>Wait Until Element Is Visible</arg>
-<arg>${SURVEY_TYPE_DROPDOWN_XPATH}</arg>
+<arg>${locator}</arg>
+<arg>15s</arg>
 <doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="FAIL" start="2026-04-15T17:23:53.983976" elapsed="106.754578">Keyword 'Wait Until Element Is Visible' failed after retrying 15 times. The last error was: Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</status>
+<status status="PASS" start="2026-04-22T18:09:13.921830" elapsed="0.224061"/>
 </kw>
 <kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
+<kw name="Click Element" owner="SeleniumLibrary">
+<msg time="2026-04-22T18:09:14.146506" level="INFO">Clicking element 'id=btn_profile_onSignout'.</msg>
+<arg>${locator}</arg>
+<doc>Click the element identified by ``locator``.</doc>
+<status status="PASS" start="2026-04-22T18:09:14.146285" elapsed="0.792907"/>
+</kw>
+<arg>10x</arg>
 <arg>2s</arg>
 <arg>Click Element</arg>
-<arg>${SURVEY_TYPE_DROPDOWN_XPATH}</arg>
+<arg>${locator}</arg>
 <doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.738647" elapsed="0.000016"/>
+<status status="PASS" start="2026-04-22T18:09:14.146060" elapsed="0.793293"/>
 </kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${BLANK_AREA_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.738703" elapsed="0.000008"/>
+<arg>id=btn_profile_onSignout</arg>
+<status status="PASS" start="2026-04-22T18:09:13.921462" elapsed="1.017999"/>
 </kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${BLANK_AREA_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.738744" elapsed="0.000008"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${SURVEY_TYPE_DROPDOWN_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.738782" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${SURVEY_TYPE_DROPDOWN_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.738819" elapsed="0.000011"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${SURVEY_OPTION_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.738860" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${SURVEY_OPTION_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.738897" elapsed="0.000009"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${NAME_LABEL_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.738942" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${NAME_LABEL_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.738978" elapsed="0.000008"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Input Text</arg>
-<arg>${SURVEY_NAME_FIELD}</arg>
-<arg>t@gmail.com</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739016" elapsed="0.000008"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${SURVEY_NAME_FIELD}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739054" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${SURVEY_NAME_FIELD}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739090" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Input Text</arg>
-<arg>${SURVEY_NAME_FIELD}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739125" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${PROFILE_EMAIL_FIELD_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739161" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${PROFILE_EMAIL_FIELD_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739197" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${EMAIL_INPUT_FIELD}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739232" elapsed="0.000006"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Input Text</arg>
-<arg>${EMAIL_INPUT_FIELD}</arg>
-<arg>t@gmail.com</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739301" elapsed="0.000009"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${SURVEY_NAME_FIELD}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739344" elapsed="0.000010"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${SURVEY_NAME_FIELD}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739392" elapsed="0.000008"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Input Text</arg>
-<arg>${SURVEY_NAME_FIELD}</arg>
-<arg>Test</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739429" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${TEAM_MEMBER_DROPDOWN_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739466" elapsed="0.000008"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${TEAM_MEMBER_DROPDOWN_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739503" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${BLANK_TEAM_MMEBER_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739538" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${BLANK_TEAM_MMEBER_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739574" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${PHONE_FIELD}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739610" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${PHONE_FIELD}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739645" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Input Text</arg>
-<arg>${PHONE_FIELD}</arg>
-<arg>987-673-55353</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739680" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${ADDRESS_FIELD_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739715" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${ADDRESS_FIELD_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739750" elapsed="0.000006"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${ADDRESS_INPUT}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739784" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Input Text</arg>
-<arg>${ADDRESS_INPUT}</arg>
-<arg>123</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739820" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${START_DATE_CALENDAR_BUTTON}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739855" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${START_DATE_CALENDAR_BUTTON}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739889" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${APRIL_16_2026}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739924" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${APRIL_16_2026}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739959" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${START_DATE_CALENDAR_BUTTON}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.739998" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${START_DATE_CALENDAR_BUTTON}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.740033" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${APRIL_17_2026}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.740067" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${APRIL_17_2026}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.740101" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${TIME_SLOT_BUTTON}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.740135" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${TIME_SLOT_BUTTON}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.740171" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${FILE_ATTACHMENT_DIV_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.740205" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${FILE_ATTACHMENT_DIV_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.740240" elapsed="0.000009"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${FILE_UPLOAD_INPUT}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.740298" elapsed="0.000009"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Input Text</arg>
-<arg>${FILE_UPLOAD_INPUT}</arg>
-<arg>C:\fakepath\image (5).png</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.740340" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${COMMENTS_TEXTAREA}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.740376" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${COMMENTS_TEXTAREA}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.740411" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Input Text</arg>
-<arg>${COMMENTS_TEXTAREA}</arg>
-<arg>Test</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.740446" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${SUBMIT_REQUEST_BUTTON_TEXT_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.740482" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${SUBMIT_REQUEST_BUTTON_TEXT_XPATH}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.740518" elapsed="0.000006"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Wait Until Element Is Visible</arg>
-<arg>${CANCEL_BUTTON}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.740552" elapsed="0.000007"/>
-</kw>
-<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
-<arg>15x</arg>
-<arg>2s</arg>
-<arg>Click Element</arg>
-<arg>${CANCEL_BUTTON}</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<status status="NOT RUN" start="2026-04-15T17:25:40.740587" elapsed="0.000007"/>
-</kw>
-<status status="FAIL" start="2026-04-15T17:23:38.088168" elapsed="122.652500">Keyword 'Wait Until Element Is Visible' failed after retrying 15 times. The last error was: Element 'xpath=/html/body/div[5]/div[2]/div/mat-dialog-container/app-addsurveydialog/form/div/div/div[1]/div/mat-form-field/div/div[1]/div/mat-select/div/div[2]' not visible after 5 seconds.</status>
+<status status="PASS" start="2026-04-22T18:08:58.452955" elapsed="16.486706"/>
 </test>
-<status status="FAIL" start="2026-04-15T17:23:37.986334" elapsed="122.754556"/>
+<status status="PASS" start="2026-04-22T18:08:58.285721" elapsed="16.654641"/>
 </suite>
 <statistics>
 <total>
-<stat pass="0" fail="1" skip="0">All Tests</stat>
+<stat pass="1" fail="0" skip="0">All Tests</stat>
 </total>
 <tag>
 </tag>
 <suite>
-<stat name="Temp" id="s1" pass="0" fail="1" skip="0">Temp</stat>
+<stat name="Temp" id="s1" pass="1" fail="0" skip="0">Temp</stat>
 </suite>
 </statistics>
 <errors>
+<msg time="2026-04-22T18:08:58.285889" level="ERROR">Error in file '/Users/wattmonk/Desktop/AUTOSCRIPT_20APRIL/AutoScript_Genarator.Ai/backend/temp.robot' on line 5: Setting variable '$${BROWSER}' failed: Invalid variable name '$${BROWSER}'.</msg>
 </errors>
 </robot>
