@@ -21,7 +21,15 @@ async def run_test_script(request: RunRequest):
         
         # Safeguard: Inject Settings and Library if missing
         if "*** Settings ***" not in script_content:
-            script_content = "*** Settings ***\nLibrary    SeleniumLibrary\n\n" + script_content
+            script_content = "*** Settings ***\nLibrary  SeleniumLibrary\n\n" + script_content
+        
+        # Safeguard: Enforce EXACTLY 2 spaces between arguments (Rule 1)
+        # Collapse 3+ spaces to 2, convert tabs to 2 spaces
+        script_content = re.sub(r' {3,}', '  ', script_content)
+        script_content = script_content.replace('\t', '  ')
+            
+        # Safeguard: Fix double dollar sign syntax ($${VAR} -> ${VAR})
+        script_content = re.sub(r'\$\$\{(\w+)\}', r'${\1}', script_content)
             
         # Safeguard: Fix AI formatting for Wait Until Keyword Succeeds spacing
         script_content = re.sub(r'Wait Until Keyword Succeeds\s+15x\s+2s', r'Wait Until Keyword Succeeds    15x    2s', script_content)
@@ -31,6 +39,7 @@ async def run_test_script(request: RunRequest):
 
         # Safeguard: Fix variables starting with numbers (e.g. ${1_ELEMENT} -> ${ELEMENT_1})
         script_content = re.sub(r'\$\{([0-9]+)_([a-zA-Z0-9_]+)\}', r'${\2_\1}', script_content)
+        script_content = re.sub(r'\$\{([0-9]+)([a-zA-Z0-9_]+)\}', r'${\2_\1}', script_content)
 
         # Safeguard: Fix malformed BROWSER variable definition
         script_content = re.sub(r'\$\{\'BROWSER\'\.ljust\(\d+\)\}', r'${BROWSER}', script_content)
@@ -43,23 +52,10 @@ async def run_test_script(request: RunRequest):
         # Inject Chrome options to disable notifications and password manager if using Open Browser
         if "Open Browser" in script_content and "options=" not in script_content:
             chrome_options_str = 'add_argument("--disable-notifications"); add_argument("--disable-infobars"); add_experimental_option("prefs", {"profile.default_content_setting_values.notifications": 2, "credentials_enable_service": False, "profile.password_manager_enabled": False})'
-            script_content = re.sub(r'(Open Browser\s+\S+\s+\S+)', rf'\1    options={chrome_options_str}', script_content)
+            # Match Open Browser + URL + optional browser, then append options
+            script_content = re.sub(r'(Open Browser\s+\S+(?:\s+\S+)?)', rf'\1    options={chrome_options_str}', script_content)
 
-        # Ensure Keywords section has Wait And Click / Wait And Input if missing
-        if "Wait And Click" not in script_content:
-            keywords_block = """
-*** Keywords ***
-Wait And Click
-    [Arguments]    ${locator}
-    Wait Until Element Is Visible    ${locator}    20s
-    Click Element    ${locator}
-
-Wait And Input
-    [Arguments]    ${locator}    ${text}
-    Wait Until Element Is Visible    ${locator}    20s
-    Input Text    ${locator}    ${text}
-"""
-            script_content += keywords_block
+        # Note: Custom keywords removed per strict requirement (Rule 2)
             
         with open("temp.robot", "w", encoding="utf-8") as f:
             f.write(script_content)
